@@ -3,9 +3,11 @@
 Interaktive øvelser til skolearbeid. Nettsiden er vanlig HTML, CSS og JavaScript uten byggesteg.
 
 - `index.html`: forside med oversikt over øvelsene
-- `modalverber.html`: tyske modalverb (A1–A2), 30 oppgaver
+- `modalverber.html`: tyske modalverb i presens (A1–A2), 30 oppgaver
+- `modalverber-fortid.html`: modalverb i fortid (B1), 30 oppgaver
 - `css/style.css`: felles stil
-- `js/modalverber.js`: oppgaver og logikk
+- `js/quiz.js`: felles logikk for øvelsene
+- `js/modalverber.js` og `js/fortid.js`: oppgavene
 
 ## Publisere med GitHub Pages
 

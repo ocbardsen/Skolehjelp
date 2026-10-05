@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modalverben i fortid – Skolehjelp</title>
+<meta name="description" content="Interaktiv øvelse i tyske modalverb i fortid (B1) med 30 oppgaver.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site"><a href="index.html">Skolehjelp</a><a class="back" href="index.html">← Alle øvelser</a></header>
+<main class="wrap">
+  <section id="intro" class="wrap" style="padding:0;gap:20px">
+    <div style="display:grid;gap:10px">
+      <span class="lbl">Tysk · B1</span>
+      <h1>Modalverben i fortid: <span class="mk">konnte, musste, wollte</span></h1>
+      <p class="muted">30 oppgaver i fire deler: preteritum, perfektum, riktig form og ordstilling. Du får svar og en kort forklaring etter hver oppgave.</p>
+    </div>
+
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>Preteritum</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th></th><th>können</th><th>müssen</th><th>wollen</th><th>sollen</th><th>dürfen</th><th>mögen</th></tr></thead>
+        <tbody>
+          <tr><td>ich</td><td><b>konnte</b></td><td><b>musste</b></td><td><b>wollte</b></td><td><b>sollte</b></td><td><b>durfte</b></td><td><b>mochte</b></td></tr>
+          <tr><td>du</td><td>konntest</td><td>musstest</td><td>wolltest</td><td>solltest</td><td>durftest</td><td>mochtest</td></tr>
+          <tr><td>er/sie/es</td><td><b>konnte</b></td><td><b>musste</b></td><td><b>wollte</b></td><td><b>sollte</b></td><td><b>durfte</b></td><td><b>mochte</b></td></tr>
+          <tr><td>wir</td><td>konnten</td><td>mussten</td><td>wollten</td><td>sollten</td><td>durften</td><td>mochten</td></tr>
+          <tr><td>ihr</td><td>konntet</td><td>musstet</td><td>wolltet</td><td>solltet</td><td>durftet</td><td>mochtet</td></tr>
+          <tr><td>sie/Sie</td><td>konnten</td><td>mussten</td><td>wollten</td><td>sollten</td><td>durften</td><td>mochten</td></tr>
+        </tbody></table></div>
+      <p class="muted">Omlyden faller bort, og du legger til <b>-te</b>, <b>-test</b>, <b>-te</b>, <b>-ten</b>, <b>-tet</b>, <b>-ten</b>. <b>Mögen</b> endrer også g til ch. <b>Möchten</b> har ikke eget preteritum, bruk <i>wollte</i>.</p>
+    </div>
+
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>Perfektum</h2>
+      <ul class="rules">
+        <li><code>Das habe ich nicht <span class="mk">gewollt</span>.</code><span>Modalverbet alene: haben + Partizip II. Partisippene er <i>gekonnt, gemusst, gewollt, gesollt, gedurft, gemocht</i>.</span></li>
+        <li><code>Ich habe arbeiten <span class="mk">müssen</span>.</code><span>Modalverbet sammen med et hovedverb: haben + infinitiv + infinitiv (dobbel infinitiv).</span></li>
+        <li><code>Ich kam zu spät, weil ich arbeiten <span class="mk">musste</span>.</code><span>I leddsetning står det bøyde verbet sist.</span></li>
+      </ul>
+      <p class="muted">I daglig tale bruker tyskere helst preteritum av modalverbene, og perfektum er mest vanlig i skriftlig og formelt språk. Begge deler kan komme på prøven.</p>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="start" type="button">Start øvelsen</button>
+      <span class="muted">Del 1–2: fyll inn · Del 3: flervalg · Del 4: sett sammen setningen</span>
+    </div>
+  </section>
+
+  <section id="quiz" class="wrap" style="padding:0;gap:16px" hidden>
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="legend"><span class="g">Riktig</span><span class="r">Feil</span><span class="c">Denne oppgaven</span><span>Ikke besvart</span></div>
+    <div class="meta"><span class="lbl" id="part"></span><span class="qno" id="count"></span></div>
+    <div class="panel" id="card" style="display:grid;gap:16px"></div>
+    <div id="fb" aria-live="polite"></div>
+    <div class="row"><button class="btn" id="go" type="button">Sjekk</button><button class="btn ghost" id="reset" type="button" hidden>Nullstill</button></div>
+  </section>
+
+  <section id="end" class="wrap" style="padding:0;gap:18px" hidden>
+    <span class="lbl">Resultat</span>
+    <div class="big"><span id="score"></span></div>
+    <p id="verdict" class="muted"></p>
+    <div class="scores" id="scores"></div>
+    <div id="missWrap" style="display:grid;gap:10px"><h2>Dette bør du øve mer på</h2><ul class="miss" id="miss"></ul></div>
+    <div class="row"><button class="btn" id="again" type="button" hidden>Øv på det du bommet på</button><button class="btn ghost" id="restart" type="button">Start på nytt</button></div>
+  </section>
+</main>
+<script src="js/fortid.js"></script>
+<script src="js/quiz.js"></script>
+</body>
+</html>

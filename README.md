@@ -1,0 +1,19 @@
+# Skolehjelp
+
+Interaktive øvelser til skolearbeid. Nettsiden er vanlig HTML, CSS og JavaScript uten byggesteg.
+
+- `index.html`: forside med oversikt over øvelsene
+- `modalverber.html`: tyske modalverb (A1–A2), 30 oppgaver
+- `css/style.css`: felles stil
+- `js/modalverber.js`: oppgaver og logikk
+
+## Publisere med GitHub Pages
+
+1. Legg filene i roten av repoet `skolehjelp` og push til `main`.
+2. Gå til **Settings → Pages**.
+3. Under **Build and deployment** velger du **Deploy from a branch**, branch `main` og mappen `/ (root)`.
+4. Siden blir tilgjengelig på `https://<brukernavn>.github.io/skolehjelp/`.
+
+## Legge til flere øvelser
+
+Lag en ny `.html`-fil som bruker `css/style.css`, og legg til et kort i `index.html` (kopier `a.card`-blokken).

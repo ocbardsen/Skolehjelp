@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modalverben på tysk – Skolehjelp</title>
+<meta name="description" content="Interaktiv øvelse i tyske modalverb (A1–A2) med 30 oppgaver.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site"><a href="index.html">Skolehjelp</a><a class="back" href="index.html">← Alle øvelser</a></header>
+<main class="wrap">
+  <section id="intro" class="wrap" style="padding:0;gap:20px">
+    <div style="display:grid;gap:10px">
+      <span class="lbl">Tysk · A1–A2</span>
+      <h1>Modal&shy;verben: <span class="mk">können, müssen, wollen</span> og de andre</h1>
+      <p class="muted">30 oppgaver i tre deler. Du får svar og en kort forklaring etter hver oppgave.</p>
+    </div>
+
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>Bøyning i presens</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th></th><th>können</th><th>müssen</th><th>wollen</th><th>sollen</th><th>dürfen</th><th>mögen</th><th>möchten</th></tr></thead>
+        <tbody>
+          <tr><td>ich</td><td><b>kann</b></td><td><b>muss</b></td><td><b>will</b></td><td><b>soll</b></td><td><b>darf</b></td><td><b>mag</b></td><td><b>möchte</b></td></tr>
+          <tr><td>du</td><td><b>kannst</b></td><td><b>musst</b></td><td><b>willst</b></td><td><b>sollst</b></td><td><b>darfst</b></td><td><b>magst</b></td><td><b>möchtest</b></td></tr>
+          <tr><td>er/sie/es</td><td><b>kann</b></td><td><b>muss</b></td><td><b>will</b></td><td><b>soll</b></td><td><b>darf</b></td><td><b>mag</b></td><td><b>möchte</b></td></tr>
+          <tr><td>wir</td><td>können</td><td>müssen</td><td>wollen</td><td>sollen</td><td>dürfen</td><td>mögen</td><td>möchten</td></tr>
+          <tr><td>ihr</td><td>könnt</td><td>müsst</td><td>wollt</td><td>sollt</td><td>dürft</td><td>mögt</td><td>möchtet</td></tr>
+          <tr><td>sie/Sie</td><td>können</td><td>müssen</td><td>wollen</td><td>sollen</td><td>dürfen</td><td>mögen</td><td>möchten</td></tr>
+        </tbody></table></div>
+      <p class="muted">Ved <b>ich</b>, <b>er/sie/es</b> får verbet ingen endelse. Ved <b>wir</b> og <b>sie/Sie</b> er formen lik infinitiv.</p>
+    </div>
+
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>Ordstilling</h2>
+      <ul class="rules">
+        <li><code>Ich <span class="mk">kann</span> gut schwimmen.</code><span>Modalverbet står på plass 2, hovedverbet står sist i infinitiv.</span></li>
+        <li><code><span class="mk">Kannst</span> du schwimmen?</code><span>I spørsmål uten spørreord står modalverbet først.</span></li>
+        <li><code>Du <span class="mk">darfst</span> nicht gehen.</code><span>«Må ikke» heter <i>nicht dürfen</i>. «Trenger ikke» heter <i>nicht müssen</i>.</span></li>
+      </ul>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="start" type="button">Start øvelsen</button>
+      <span class="muted">Del 1: fyll inn · Del 2: flervalg · Del 3: sett sammen setningen</span>
+    </div>
+  </section>
+
+  <section id="quiz" class="wrap" style="padding:0;gap:16px" hidden>
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="legend"><span class="g">Riktig</span><span class="r">Feil</span><span class="c">Denne oppgaven</span><span>Ikke besvart</span></div>
+    <div class="meta"><span class="lbl" id="part"></span><span class="qno" id="count"></span></div>
+    <div class="panel" id="card" style="display:grid;gap:16px"></div>
+    <div id="fb" aria-live="polite"></div>
+    <div class="row"><button class="btn" id="go" type="button">Sjekk</button><button class="btn ghost" id="reset" type="button" hidden>Nullstill</button></div>
+  </section>
+
+  <section id="end" class="wrap" style="padding:0;gap:18px" hidden>
+    <span class="lbl">Resultat</span>
+    <div class="big"><span id="score"></span></div>
+    <p id="verdict" class="muted"></p>
+    <div class="scores" id="scores"></div>
+    <div id="missWrap" style="display:grid;gap:10px"><h2>Dette bør du øve mer på</h2><ul class="miss" id="miss"></ul></div>
+    <div class="row"><button class="btn" id="again" type="button" hidden>Øv på det du bommet på</button><button class="btn ghost" id="restart" type="button">Start på nytt</button></div>
+  </section>
+</main>
+<script src="js/modalverber.js"></script>
+</body>
+</html>

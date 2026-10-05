@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Talltrener 1T</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: rutepapir-bakgrunn, én kolonne med faner øverst og et oppgavekort i midten. */
+:root{
+  --bg:#F3F7FB; --grid:#D9E6F2; --paper:#FFFFFF; --ink:#17284F; --ink2:#4A5B7E; --line:#C9D6E6;
+  --hi:#FFE066; --good:#17784C; --goodbg:#E3F5EB; --bad:#B8322A; --badbg:#FCE9E7; --btnfg:#FFFFFF;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Source Sans 3','Segoe UI',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1730; --grid:#1A2647; --paper:#16203E; --ink:#E8EEFC; --ink2:#9DAACB; --line:#2C3A63;
+  --hi:#F2C94C; --good:#4CC38A; --goodbg:#12332A; --bad:#FF8379; --badbg:#3A1B22; --btnfg:#0F1730; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1730; --grid:#1A2647; --paper:#16203E; --ink:#E8EEFC; --ink2:#9DAACB; --line:#2C3A63;
+  --hi:#F2C94C; --good:#4CC38A; --goodbg:#12332A; --bad:#FF8379; --badbg:#3A1B22; --btnfg:#0F1730; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--f-body); font-size:17px; line-height:1.5;
+  padding-inline:16px; padding-block:24px 56px;
+}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 mark{background:linear-gradient(transparent 55%,var(--hi) 55%);color:inherit;padding:0 2px}
+.sub{margin:4px 0 0;color:var(--ink2);font-size:15px}
+.score{display:flex;gap:8px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 12px;min-width:84px}
+.stat b{display:block;font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+
+#tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{font:600 15px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tab small{font:400 12px var(--f-mono);color:var(--ink2);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--btnfg);border-color:var(--ink)}
+.tab[aria-selected="true"] small{color:var(--btnfg);opacity:.75}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+#subs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#subs .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-right:4px}
+.chip{font:400 14px var(--f-body);color:var(--ink);background:transparent;border:1px dashed var(--ink2);border-radius:99px;padding:3px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--hi);border:1px solid var(--hi);color:#17284F;font-weight:600}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:16px;box-shadow:0 2px 0 var(--line)}
+.kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.q{font-size:20px;line-height:1.6;margin:0;min-width:0;overflow-wrap:anywhere}
+.q b{font-weight:600}
+pre{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:400 15px/1.55 var(--f-mono);color:var(--ink)}
+.figs{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}
+.figs figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.figs figcaption{font-size:13px;color:var(--ink2)}
+.figs svg{max-width:100%;height:auto}
+.figs line{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=text],input[type=number],select{font:400 20px var(--f-mono);color:var(--ink);background:var(--bg);border:2px solid var(--ink2);border-radius:8px;padding:8px 12px;width:min(100%,220px)}
+input.sm,select.sm{font-size:16px;width:96px;padding:5px 8px}
+select.sm{width:auto}
+.btn{font:600 16px var(--f-body);border-radius:8px;padding:9px 18px;cursor:pointer;border:2px solid var(--ink);background:var(--ink);color:var(--btnfg)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.45;cursor:default}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.opt{font:400 18px var(--f-body);text-align:left;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.opt:hover:not([disabled]){border-color:var(--ink2)}
+.opt.right{border-color:var(--good);background:var(--goodbg)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+.opt[disabled]{cursor:default}
+.fb{border-radius:8px;padding:12px 14px;font-size:16px}
+.fb.ok{background:var(--goodbg);border-left:5px solid var(--good)}
+.fb.no{background:var(--badbg);border-left:5px solid var(--bad)}
+.fb strong{display:block;font-family:var(--f-display);font-size:18px}
+.hint{font-size:16px;border-left:5px solid var(--hi);padding:4px 12px;color:var(--ink2)}
+.note{font-size:14px;color:var(--ink2)}
+
+sup{font-size:.7em;line-height:0}
+sub{font-size:.7em;line-height:0}
+.rt{white-space:nowrap}
+.rt .ov{border-top:1.5px solid currentColor;padding:0 2px;margin-left:1px}
+.rt .ix{font-size:.6em;margin-right:-1px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.85em;line-height:1.15;margin:0 2px}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+sup .fr{font-size:1em}
+
+.tools{display:flex;flex-direction:column;gap:16px}
+.tool h2{font-family:var(--f-display);font-size:22px;margin:0}
+.terms{display:flex;flex-wrap:wrap;gap:6px}
+.terms span{font:400 15px var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums}
+table{border-collapse:collapse;font:400 15px var(--f-mono);font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:right}
+th{background:var(--bg);font-weight:600}
+.scroll{overflow-x:auto;max-width:100%}
+label{font-size:15px;display:flex;align-items:center;gap:6px}
+@media (prefers-reduced-motion:no-preference){.fb{animation:pop .2s ease-out}@keyframes pop{from{transform:translateY(4px);opacity:0}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Tall og <mark>tallmønstre</mark></h1>
+      <p class="sub">Repetisjon til Matematikk 1T. Nye oppgaver hver gang.</p>
+      <p class="sub"><a href="index.html" style="color:inherit">← Tilbake til Skolehjelp</a></p>
+    </div>
+    <div class="score" aria-live="polite">
+      <div class="stat"><b id="sc">0/0</b><span>Riktig</span></div>
+      <div class="stat"><b id="st">0</b><span>På rad</span></div>
+    </div>
+  </header>
+  <nav id="tabs" role="tablist" aria-label="Emner"></nav>
+  <div id="subs"></div>
+  <main id="stage"></main>
+</div>
+
+<script>
+/* ---------- hjelpefunksjoner ---------- */
+const U='−';
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[ri(0,a.length-1)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const sup=(b,e)=>`${b}<sup>${String(e).replace('-',U)}</sup>`;
+const frac=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+const rt=(x,n=2)=>n===2?`<span class="rt">√<span class="ov">${x}</span></span>`:`<span class="rt"><sup class="ix">${n}</sup>√<span class="ov">${x}</span></span>`;
+const ns=n=>String(n).replace('-',U);
+const dec=x=>String(+x.toFixed(6)).replace('.',',').replace('-',U);
+const grp=s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const par=a=>a<0?`(${U}${-a})`:String(a);
+const mc=(right,wrongs)=>{const all=shuffle([right,...wrongs]);return {opts:all,ans:all.indexOf(right)};};
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+
+/* ---------- Tallmengder ---------- */
+const SETS=['ℕ','ℤ','ℚ','ℝ'];
+function gMinste(){
+  const items=[
+    ['7',0,'7 er et positivt helt tall.'],
+    ['12',0,'12 er et naturlig tall.'],
+    [U+'5',1,'Negative hele tall hører til ℤ, men ikke til ℕ.'],
+    [frac(3,4),2,'En brøk av to hele tall er et rasjonalt tall.'],
+    ['0,25',2,'0,25 = 1/4, altså en brøk.'],
+    [rt(2),3,'√2 har uendelig mange desimaler uten mønster. Tallet er irrasjonalt, og dermed bare i ℝ.'],
+    ['π',3,'π er irrasjonalt.'],
+    [rt(81),0,'√81 = 9, et naturlig tall.'],
+    [U+rt(25),1,U+'√25 = '+U+'5, et helt tall.'],
+    ['0,333…',2,'0,333… = 1/3. Desimaltall med periode er rasjonale.'],
+    [rt('0,25'),2,'√0,25 = 0,5 = 1/2.'],
+    [rt(U+'8',3),1,'∛('+U+'8) = '+U+'2, et helt tall.'],
+    [rt(10,3),3,'∛10 er ikke et rasjonalt tall.'],
+    [frac(U+'12',4),1,U+'12/4 = '+U+'3, et helt tall.'],
+    [rt(50)+'/'+rt(2),0,'√50 / √2 = √25 = 5.'],
+  ];
+  const [t,s,why]=pick(items);
+  return {q:`Hva er den <b>minste</b> tallmengden som inneholder tallet ${t}?`,type:'choice',opts:SETS,ans:s,
+    hint:'Husk at ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ. Regn ut tallet først hvis det står en rot.',why};
+}
+function gSannUsann(){
+  const P=[
+    ['Alle naturlige tall er hele tall.',1,'ℕ er en del av ℤ.'],
+    ['Alle hele tall er naturlige tall.',0,U+'1 er et helt tall, men ikke et naturlig tall.'],
+    [rt(2)+' er et rasjonalt tall.',0,'√2 kan ikke skrives som en brøk av hele tall.'],
+    ['0,5 er et rasjonalt tall.',1,'0,5 = 1/2.'],
+    ['π kan skrives som en brøk av to hele tall.',0,'π er irrasjonalt.'],
+    ['Summen av to rasjonale tall er alltid rasjonal.',1,'a/b + c/d = (ad + bc)/bd er en brøk.'],
+    [rt(9)+' er et irrasjonalt tall.',0,'√9 = 3, så tallet er et naturlig tall.'],
+    ['ℚ inneholder alle hele tall.',1,'Et helt tall n kan skrives som n/1.'],
+    ['Alle reelle tall er rasjonale.',0,'√2 og π er reelle, men ikke rasjonale.'],
+    [U+'4 tilhører ℤ, men ikke ℕ.',1,'Naturlige tall er positive.'],
+    ['0,999… er et irrasjonalt tall.',0,'0,999… = 1, et naturlig tall.'],
+    ['Produktet av to irrasjonale tall er alltid irrasjonalt.',0,'√2 · √2 = 2, som er rasjonalt.'],
+    ['Et irrasjonalt tall har uendelig mange desimaler uten gjentakende mønster.',1,'Det er nettopp slik irrasjonale tall er definert i desimalform.'],
+  ];
+  const [s,t,why]=pick(P);
+  return {q:`Er påstanden sann eller usann?<br><b>${s}</b>`,type:'choice',opts:['Sann','Usann'],ans:t?0:1,
+    hint:'Finn et eksempel som støtter eller avkrefter påstanden.',why};
+}
+function gAntallHele(){
+  const l=ri(-8,2),r=l+ri(3,9),lo=Math.random()<.5,ro=Math.random()<.5;
+  const a=l+(lo?1:0),b=r-(ro?1:0);
+  const iv=`${lo?'⟨':'['}${ns(l)}, ${ns(r)}${ro?'⟩':']'}`;
+  return {q:`Hvor mange hele tall ligger i intervallet ${iv}?`,type:'num',ans:b-a+1,
+    hint:'⟨ og ⟩ betyr at endepunktet ikke er med. [ og ] betyr at det er med.',
+    why:`Det første hele tallet er ${ns(a)} og det siste er ${ns(b)}. Antall: ${ns(b)} − (${ns(a)}) + 1 = ${b-a+1}.`};
+}
+function gIntervall(){
+  const l=ri(-6,3),r=l+ri(2,8),lo=Math.random()<.5,ro=Math.random()<.5;
+  const f=(a,b)=>`${a?'⟨':'['}${ns(l)}, ${ns(r)}${b?'⟩':']'}`;
+  const right=f(lo,ro);
+  const wrongs=[[!lo,ro],[lo,!ro],[!lo,!ro]].map(([a,b])=>f(a,b));
+  const m=mc(right,wrongs);
+  return {q:`Hvilket intervall beskriver <b>${ns(l)} ${lo?'<':'≤'} x ${ro?'<':'≤'} ${ns(r)}</b>?`,type:'choice',...m,
+    hint:'Strengt ulikhet (&lt;) gir åpent endepunkt ⟨ ⟩. Med likhet (≤) er endepunktet med: [ ].',
+    why:`${lo?'Venstre':'Venstre'} grense er ${lo?'ikke med':'med'}, og høyre grense er ${ro?'ikke med':'med'}. Det gir ${right}.`};
+}
+function gIrrasjonal(){
+  const irr=[[rt(2),'√2'],[rt(3),'√3'],[rt(5),'√5'],['π','π'],[rt(7),'√7'],[rt(11),'√11'],[rt(2,3),'∛2']];
+  const rat=[[rt(4),'√4 = 2'],[rt(9),'√9 = 3'],[rt(16),'√16 = 4'],[rt(25),'√25 = 5'],['0,75','0,75 = 3/4'],['22/7','22/7 er en brøk'],[frac(1,3),'1/3'],[rt(8,3),'∛8 = 2'],[rt('0,16'),'√0,16 = 0,4']];
+  const i=pick(irr),rs=shuffle(rat).slice(0,3);
+  const m=mc(i[0],rs.map(x=>x[0]));
+  return {q:'Hvilket av tallene er <b>irrasjonalt</b>?',type:'choice',...m,
+    hint:'Prøv å regne ut røttene. Et irrasjonalt tall kan ikke skrives som en brøk av hele tall.',
+    why:`${i[1]} er irrasjonalt. De andre er rasjonale: ${rs.map(x=>x[1]).join(', ')}.`};
+}
+
+/* ---------- Potenser ---------- */
+function gRegnUt(){
+  const k=ri(1,5);let q,ans,why,hint='Skriv potensen som gjentatt multiplikasjon.';
+  if(k===1){const a=ri(2,6),n=ri(2,4);ans=a**n;q=`${sup(a,n)} =`;why=`${a}${' · '+a}`.repeat(1)+` ... (${n} faktorer) = ${ans}.`;}
+  else if(k===2){const a=ri(2,4),n=pick([2,3,4,5]);ans=(-a)**n;q=`${sup('('+U+a+')',n)} =`;why=`Parentesen gjør at hele ${U}${a} opphøyes. Eksponent ${n} er ${n%2?'oddetall, så svaret blir negativt':'partall, så svaret blir positivt'}: ${ns(ans)}.`;hint='Partall som eksponent gir positivt svar, oddetall gir negativt.';}
+  else if(k===3){const a=ri(2,5),n=pick([2,3]);ans=-(a**n);q=`${U}${sup(a,n)} =`;why=`Uten parentes er det bare ${a} som opphøyes. Først ${a}<sup>${n}</sup> = ${a**n}, så minus foran: ${ns(ans)}.`;hint='Uten parentes gjelder eksponenten bare tallet rett foran.';}
+  else if(k===4){const a=ri(2,99);ans=1;q=`${sup(a,0)} =`;why='Alle tall (unntatt 0) opphøyd i 0 er 1.';hint='a<sup>0</sup> har en fast verdi.';}
+  else {const n=ri(2,6);ans=10**n;q=`${sup(10,n)} =`;why=`1 etterfulgt av ${n} nuller.`;}
+  return {q,type:'num',ans,hint,why};
+}
+function gRegler(){
+  const v=pick(['x','a','n','t']),k=ri(1,4);let q,ans,why;
+  if(k===1){const m=ri(2,9),n=ri(2,9);q=`${sup(v,m)} · ${sup(v,n)} = ${sup(v,'k')}. Hva er k?`;ans=m+n;why=`Samme grunntall: eksponentene legges sammen. ${m} + ${n} = ${ans}.`;}
+  else if(k===2){const m=ri(6,14),n=ri(2,m-1);q=`${sup(v,m)} / ${sup(v,n)} = ${sup(v,'k')}. Hva er k?`;ans=m-n;why=`Samme grunntall: eksponentene trekkes fra hverandre. ${m} − ${n} = ${ans}.`;}
+  else if(k===3){const m=ri(2,5),n=ri(2,5);q=`(${sup(v,m)})<sup>${n}</sup> = ${sup(v,'k')}. Hva er k?`;ans=m*n;why=`Potens av potens: eksponentene ganges. ${m} · ${n} = ${ans}.`;}
+  else {const a=ri(2,6),b=ri(2,6),c=ri(1,a+b-1);q=`(${sup(v,a)} · ${sup(v,b)}) / ${sup(v,c)} = ${sup(v,'k')}. Hva er k?`;ans=a+b-c;why=`Først ${a} + ${b} = ${a+b} i telleren, så ${a+b} − ${c} = ${ans}.`;}
+  return {q,type:'num',ans,hint:'Se på eksponentene. Gange gir pluss, dele gir minus, potens av potens gir gange.',why};
+}
+function gNegEksp(){
+  if(Math.random()<.65){
+    const a=ri(2,6),n=ri(1,3);
+    return {q:`${sup(a,'-'+n)} = ? <span class="note">(brøk eller desimaltall)</span>`,type:'num',ans:1/a**n,show:`1/${a**n}`,
+      hint:`a<sup>${U}n</sup> = 1 / a<sup>n</sup>`,why:`${sup(a,U+n)} = 1 / ${sup(a,n)} = 1/${a**n}.`};
+  }
+  const a=ri(2,4),b=ri(a+1,5);
+  return {q:`${sup('('+frac(a,b)+')',U+'2')} = ? <span class="note">(brøk eller desimaltall)</span>`,type:'num',ans:(b/a)**2,show:`${b*b}/${a*a}`,
+    hint:'Negativ eksponent snur brøken.',why:`${U}2 snur brøken: (${b}/${a})² = ${b*b}/${a*a}.`};
+}
+function gStandard(){
+  if(Math.random()<.6){
+    let m;do{m=ri(11,99);}while(m%10===0);
+    const k=pick([ri(4,10),ri(-8,-3)]),d=String(m),mant=dec(m/10);
+    let num;
+    if(k>=1)num=grp(d+'0'.repeat(k-1));
+    else{const j=1-k;num=j>=d.length?'0,'+'0'.repeat(j-d.length)+d:d.slice(0,-j)+','+d.slice(-j);}
+    return {q:`Tallet <b>${num}</b> skrives på standardform som a · 10<sup>n</sup> med 1 ≤ a &lt; 10. Hva er n?`,type:'num',ans:k,
+      hint:'Tell hvor mange plasser kommaet må flyttes for at det står ett siffer foran kommaet. Flytt til venstre gir positiv n, til høyre gir negativ n.',
+      why:`${num} = ${mant} · 10<sup>${ns(k)}</sup>.`};
+  }
+  let a,b;do{a=ri(2,9);b=ri(2,9);}while(a*b<10);
+  const m=ri(2,6),n=ri(2,6),k=m+n+1;
+  return {q:`(${a} · 10<sup>${m}</sup>) · (${b} · 10<sup>${n}</sup>) skrives som c · 10<sup>k</sup> med 1 ≤ c &lt; 10. Hva er k?`,type:'num',ans:k,
+    hint:'Gang tallene for seg og tierpotensene for seg. Er tallet 10 eller mer, må du justere.',
+    why:`${a}·${b} = ${a*b} = ${dec(a*b/10)} · 10. Tierpotensene: 10<sup>${m+n}</sup>. Til sammen ${dec(a*b/10)} · 10<sup>${k}</sup>.`};
+}
+function gStorst(){
+  const pool=[[2,10],[3,6],[10,3],[5,4],[4,5],[2,9],[7,3],[6,3],[9,2],[3,5],[2,8],[8,2],[5,3],[4,4]];
+  let c;do{c=shuffle(pool).slice(0,3);}while(new Set(c.map(([a,b])=>a**b)).size<3);
+  const vals=c.map(([a,b])=>a**b),mx=Math.max(...vals);
+  return {q:'Hvilken potens har størst verdi?',type:'choice',opts:c.map(([a,b])=>sup(a,b)),ans:vals.indexOf(mx),
+    hint:'Regn ut hver potens.',why:c.map(([a,b])=>`${a}<sup>${b}</sup> = ${a**b}`).join(', ')+'.'};
+}
+
+/* ---------- Røtter ---------- */
+function gRotVerdi(){
+  const t=ri(1,3);let n,b;
+  if(t===1){n=2;b=ri(2,20);}else if(t===2){n=3;b=ri(2,10);}else{n=4;b=ri(2,5);}
+  return {q:`${rt(b**n,n)} =`,type:'num',ans:b,
+    hint:`Hvilket tall opphøyd i ${n} gir ${b**n}?`,why:`${b}<sup>${n}</sup> = ${b**n}, så roten er ${b}.`};
+}
+function gRotRegler(){
+  const x=pick([2,3,5,6,7]),y=ri(2,9);
+  if(Math.random()<.5)return {q:`${rt(x)} · ${rt(x*y*y)} =`,type:'num',ans:x*y,
+    hint:'√a · √b = √(a · b)',why:`√${x} · √${x*y*y} = √${x*x*y*y} = ${x*y}.`};
+  return {q:`${rt(x*y*y)} / ${rt(x)} =`,type:'num',ans:y,
+    hint:'√a / √b = √(a / b)',why:`√${x*y*y} / √${x} = √${y*y} = ${y}.`};
+}
+function gForenkle(){
+  const s=pick([2,3,5,6,7]),k=ri(2,9);
+  return {q:`${rt(k*k*s)} = a · ${rt(s)}. Hva er a?`,type:'num',ans:k,
+    hint:`Del ${k*k*s} i en faktor som er et kvadrattall og en rest.`,
+    why:`${k*k*s} = ${k*k} · ${s}, så √${k*k*s} = √${k*k} · √${s} = ${k}√${s}.`};
+}
+function gBrokEksp(){
+  const r=pick([2,2,3,4]);const b=r===2?ri(2,9):r===3?ri(2,5):ri(2,3);
+  const p=r===2?pick([1,3]):r===3?pick([1,2]):pick([1,3]);
+  const neg=Math.random()<.3,x=b**r;
+  const e=`${neg?U:''}${frac(p,r)}`;
+  const ans=neg?1/b**p:b**p;
+  return {q:`${sup(x,e)} = ?${neg?' <span class="note">(brøk eller desimaltall)</span>':''}`,type:'num',ans,show:neg?`1/${b**p}`:String(b**p),
+    hint:`x<sup>p/r</sup> betyr at du tar r-te rot og opphøyer i p. Negativ eksponent snur brøken.`,
+    why:`${x}<sup>1/${r}</sup> = ${rt(x,r)} = ${b}. Så opphøyer vi i ${p}: ${b**p}${neg?`, og negativ eksponent gir 1/${b**p}`:''}.`};
+}
+function gEstimer(){
+  let n;do{n=ri(2,200);}while(Math.sqrt(n)%1===0);
+  const f=Math.floor(Math.sqrt(n));
+  const w=[-1,0,1,2].map(d=>[f+d,f+d+1]);
+  const fmt=([a,b])=>`mellom ${a} og ${b}`;
+  const m=mc(fmt([f,f+1]),w.filter(([a])=>a!==f).map(fmt));
+  return {q:`${rt(n)} ligger…`,type:'choice',...m,
+    hint:'Finn to kvadrattall som ligger like under og over.',
+    why:`${f}² = ${f*f} og ${f+1}² = ${(f+1)**2}. Siden ${f*f} &lt; ${n} &lt; ${(f+1)**2}, ligger √${n} mellom ${f} og ${f+1}.`};
+}
+function gLikning(){
+  if(Math.random()<.5){
+    const k=pick([16,25,36,49,100,0,U+'9',U+'4']);
+    const v=k===0?1:String(k).startsWith(U)?0:2;
+    return {q:`Hvor mange reelle løsninger har likningen x² = ${k}?`,type:'choice',opts:['Ingen løsning','Én løsning','To løsninger'],ans:v,
+      hint:'Kan et kvadrat bli negativt? Hva med 0?',
+      why:v===2?`x = ±${Math.sqrt(+k)}`:v===1?'Bare x = 0 gir 0.':'Et kvadrat av et reelt tall er aldri negativt.'};
+  }
+  const c=ri(2,6),s=Math.random()<.5?-1:1;
+  return {q:`Løs likningen x³ = ${ns(s*c**3)}.`,type:'num',ans:s*c,
+    hint:'Ta tredjeroten på begge sider. Odde røtter fungerer også for negative tall.',
+    why:`x = ∛(${ns(s*c**3)}) = ${ns(s*c)}.`};
+}
+
+/* ---------- Tallmønstre ---------- */
+const termsTxt=(arr)=>arr.map(ns).join(', ')+', …';
+function gAritm(){
+  const a1=ri(-5,20),d=pick([-1,1])*ri(2,9),t=ri(1,4),an=n=>a1+(n-1)*d;
+  const ls=[1,2,3,4].map(an);
+  const seq=`<b>${termsTxt(ls)}</b>`;
+  if(t===1)return {q:`Tallfølgen ${seq} er aritmetisk. Hva er ledd nr. 5?`,type:'num',ans:an(5),
+    hint:'Finn differansen mellom to ledd.',why:`d = ${ns(d)}. Neste ledd: ${ns(ls[3])} + (${ns(d)}) = ${ns(an(5))}.`};
+  if(t===2){const n=ri(12,30);return {q:`Tallfølgen ${seq} er aritmetisk. Hva er ledd nr. ${n}?`,type:'num',ans:an(n),
+    hint:'a<sub>n</sub> = a<sub>1</sub> + (n − 1) · d',why:`d = ${ns(d)}. a<sub>${n}</sub> = ${ns(a1)} + ${n-1}·(${ns(d)}) = ${ns(an(n))}.`};}
+  if(t===3){const n=ri(10,40);return {q:`Tallfølgen ${seq} er aritmetisk. Hvilket leddnummer har tallet ${ns(an(n))}?`,type:'num',ans:n,
+    hint:'Sett a<sub>n</sub> = verdien og løs likningen for n.',why:`${ns(a1)} + (n − 1)·(${ns(d)}) = ${ns(an(n))} gir n = ${n}.`};}
+  const i=ri(2,4),j=i+ri(2,4);
+  return {q:`I en aritmetisk følge er a<sub>${i}</sub> = ${ns(an(i))} og a<sub>${j}</sub> = ${ns(an(j))}. Hva er differansen d?`,type:'num',ans:d,
+    hint:`Fra ledd ${i} til ledd ${j} er det ${j-i} steg.`,why:`d = (${ns(an(j))} − (${ns(an(i))})) / ${j-i} = ${ns(d)}.`};
+}
+function gGeom(){
+  const r=pick([2,3,-2,'h']);const half=r==='h';
+  const a1=half?1024:pick([1,2,3,5]),rv=half?0.5:r,an=n=>a1*rv**(n-1);
+  const ls=[1,2,3,4].map(an),seq=`<b>${termsTxt(ls)}</b>`,t=ri(1,3);
+  if(t===1)return {q:`Tallfølgen ${seq} er geometrisk. Hva er ledd nr. 5?`,type:'num',ans:an(5),
+    hint:'Finn kvotienten k ved å dele et ledd på leddet før.',why:`k = ${dec(rv)}. ${ns(ls[3])} · ${par(rv)} = ${dec(an(5))}.`};
+  if(t===2)return {q:`Tallfølgen ${seq} er geometrisk. Hva er kvotienten k? <span class="note">(brøk eller desimaltall)</span>`,type:'num',ans:rv,show:half?'1/2':ns(rv),
+    hint:'k = a<sub>2</sub> / a<sub>1</sub>',why:`${ns(ls[1])} / ${ns(ls[0])} = ${dec(rv)}.`};
+  const n=ri(6,8);
+  return {q:`Tallfølgen ${seq} er geometrisk. Hva er ledd nr. ${n}?`,type:'num',ans:an(n),
+    hint:'a<sub>n</sub> = a<sub>1</sub> · k<sup>n−1</sup>',why:`a<sub>${n}</sub> = ${a1} · ${par(rv)}<sup>${n-1}</sup> = ${dec(an(n))}.`};
+}
+function figs(kind,n=3){
+  let out='';
+  for(let f=1;f<=n;f++){
+    let svg;
+    if(kind==='sq'){const u=26,w=f*u+6;let L='';
+      for(let i=0;i<f;i++){L+=`<line x1="${3+i*u}" y1="3" x2="${3+(i+1)*u}" y2="3"/><line x1="${3+i*u}" y1="${3+u}" x2="${3+(i+1)*u}" y2="${3+u}"/>`;}
+      for(let i=0;i<=f;i++)L+=`<line x1="${3+i*u}" y1="3" x2="${3+i*u}" y2="${3+u}"/>`;
+      svg=`<svg width="${w}" height="${u+6}" viewBox="0 0 ${w} ${u+6}" aria-hidden="true">${L}</svg>`;}
+    else{const u=30,h=26,w=(f+1)*u/2+u/2+6;const P=i=>[3+i*u/2,3+(i%2?h:0)];let L='';
+      for(let i=0;i<=f;i++){const a=P(i),b=P(i+1);L+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;}
+      for(let i=0;i<f;i++){const a=P(i),b=P(i+2);L+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;}
+      svg=`<svg width="${w}" height="${h+6}" viewBox="0 0 ${w} ${h+6}" aria-hidden="true">${L}</svg>`;}
+    out+=`<figure>${svg}<figcaption>Figur ${f}</figcaption></figure>`;
+  }
+  return `<div class="figs">${out}</div>`;
+}
+function gFigur(){
+  const kind=pick(['sq','tr']),a=kind==='sq'?3:2,b=1,cnt=n=>a*n+b,what=kind==='sq'?'kvadrater':'trekanter';
+  const t=ri(1,3),html=figs(kind);
+  const base=`Figurene er bygd av fyrstikker og viser ${what} på rad.`;
+  if(t===1){const n=ri(12,40);return {q:`${base} Hvor mange fyrstikker trengs i figur ${n}?`,html,type:'num',ans:cnt(n),
+    hint:'Tell fyrstikker i figur 1, 2 og 3. Hvor mange legges til hver gang?',why:`Antall fyrstikker = ${a}n + ${b}. For n = ${n}: ${a}·${n} + ${b} = ${cnt(n)}.`};}
+  if(t===2){const n=ri(15,60);return {q:`${base} Hvilket figurnummer bruker ${cnt(n)} fyrstikker?`,html,type:'num',ans:n,
+    hint:'Finn en formel for antall fyrstikker, og sett den lik tallet.',why:`${a}n + ${b} = ${cnt(n)} gir n = ${n}.`};}
+  return {q:`${base} Hvor mange nye fyrstikker kommer til for hver ny figur?`,html,type:'num',ans:a,
+    hint:'Sammenlikn figur 2 og figur 3.',why:`Hver ny ${kind==='sq'?'kvadrat':'trekant'} gir ${a} nye fyrstikker. Formelen er ${a}n + ${b}.`};
+}
+function gFormel(){
+  if(Math.random()<.65){
+    let a1,d,b;do{a1=ri(1,12);d=pick([-1,1])*ri(2,6);b=a1-d;}while(b===0);
+    const f=(p,q)=>`a<sub>n</sub> = ${p<0?U:''}${Math.abs(p)}n ${q<0?U:'+'} ${Math.abs(q)}`;
+    const seq=[1,2,3,4].map(n=>d*n+b);
+    const ok=([p,q])=>[1,2,3,4].some(n=>p*n+q!==d*n+b);
+    let cand=[[d,a1],[b,d],[d,-b],[d,b+1],[d,b-1],[d+1,b]].filter(ok);
+    const uniq=[...new Set(cand.map(x=>f(...x)))].filter(s=>s!==f(d,b)).slice(0,3);
+    const m=mc(f(d,b),uniq);
+    return {q:`Hvilken formel gir ledd nr. n i tallfølgen <b>${termsTxt(seq)}</b>?`,type:'choice',...m,
+      hint:'Finn differansen d. Prøv formelen på de første leddene.',why:`d = ${ns(d)} og a<sub>1</sub> = ${ns(a1)}, så a<sub>n</sub> = ${ns(a1)} + (n − 1)·(${ns(d)}) = ${ns(d)}n ${b<0?U:'+'} ${Math.abs(b)}.`};
+  }
+  let a,r;do{a=ri(2,5);r=ri(2,4);}while(a===r);
+  const seq=[1,2,3,4].map(n=>a*r**(n-1));
+  const f=(x,y,e)=>`a<sub>n</sub> = ${x} · ${sup(y,e)}`;
+  const right=f(a,r,'n−1');
+  const m=mc(right,[f(a,r,'n'),f(r,a,'n−1'),f(r,a,'n')]);
+  return {q:`Hvilken formel gir ledd nr. n i den geometriske følgen <b>${termsTxt(seq)}</b>?`,type:'choice',...m,
+    hint:'a<sub>n</sub> = a<sub>1</sub> · k<sup>n−1</sup>. Hva er a<sub>1</sub> og k?',why:`a<sub>1</sub> = ${a} og k = ${r}. Formelen er ${right}.`};
+}
+function gSum(){
+  const t=ri(1,3);
+  if(t===1){const n=pick([20,30,40,50,60,80,100]);return {q:`Regn ut 1 + 2 + 3 + … + ${n}.`,type:'num',ans:n*(n+1)/2,
+    hint:'Gauss: par første og siste ledd. Hvert par har samme sum.',why:`Det er ${n/2} par med sum ${n+1}. ${n/2} · ${n+1} = ${n*(n+1)/2}.`};}
+  if(t===2){const n=ri(8,30);return {q:`Regn ut summen av de ${n} første oddetallene: 1 + 3 + 5 + …`,type:'num',ans:n*n,
+    hint:'Prøv de første: 1, 1+3, 1+3+5, … Se etter mønsteret.',why:`Summen av de n første oddetallene er n². ${n}² = ${n*n}.`};}
+  const a1=ri(1,9),d=ri(2,6),n=ri(8,20),an=a1+(n-1)*d;
+  return {q:`Regn ut summen av de ${n} første leddene i den aritmetiske følgen ${a1}, ${a1+d}, ${a1+2*d}, …`,type:'num',ans:n*(a1+an)/2,
+    hint:'S<sub>n</sub> = n · (a<sub>1</sub> + a<sub>n</sub>) / 2. Finn a<sub>n</sub> først.',why:`a<sub>${n}</sub> = ${an}. S = ${n}·(${a1} + ${an})/2 = ${n*(a1+an)/2}.`};
+}
+function gBevis(){
+  const P=[
+    ['Hvilket uttrykk beskriver alle partall (n er et helt tall)?',['2n','2n + 1','n + 2','n²'],0,'Et partall er delelig med 2.'],
+    ['Hvilket uttrykk beskriver alle oddetall (n er et helt tall)?',['2n','2n + 1','2n + 2','3n'],1,'Et oddetall er ett mer enn et partall.'],
+    ['Summen n + (n + 1) + (n + 2) av tre påfølgende hele tall er alltid delelig med',['2','3','4','6'],1,'n + (n+1) + (n+2) = 3n + 3 = 3(n + 1).'],
+    ['Summen av to oddetall er alltid',['et partall','et oddetall','delelig med 3','et primtall'],0,'(2a + 1) + (2b + 1) = 2(a + b + 1).'],
+    ['Hva er (n + 1)² − n², forenklet?',['2n + 1','2n','1','n² + 1'],0,'(n+1)² = n² + 2n + 1, så differansen er 2n + 1.'],
+    ['Produktet n(n + 1) av to påfølgende hele tall er alltid',['et partall','et oddetall','et kvadrattall','et primtall'],0,'Et av to påfølgende tall er partall, og da blir produktet partall.'],
+  ];
+  const [q,o,a,why]=pick(P);
+  return {q,type:'choice',opts:o,ans:a,hint:'Skriv tallene med en variabel og regn ut uttrykket. Test med noen tall først.',why};
+}
+
+/* ---------- Programmering (Python) ---------- */
+function gSumLoop(){
+  const a=ri(1,4),b=a+ri(4,8),k=ri(2,5);let s=0;for(let i=a;i<b;i++)s+=i*k;
+  return {q:'Hva skriver programmet ut?',code:`s = 0\nfor i in range(${a}, ${b}):\n    s = s + i * ${k}\nprint(s)`,type:'num',ans:s,
+    hint:`range(${a}, ${b}) gir tallene fra og med ${a} til og med ${b-1}.`,
+    why:`i går fra ${a} til ${b-1}. Summen av i er ${[...Array(b-a)].map((_,j)=>a+j).join(' + ')}, ganget med ${k} gir ${s}.`};
+}
+function gSteg(){
+  const a=ri(1,6),st=ri(2,5),b=a+ri(12,30);const arr=[];for(let i=a;i<b;i+=st)arr.push(i);
+  if(Math.random()<.5)return {q:'Hvor mange ganger kjøres løkka?',code:`for i in range(${a}, ${b}, ${st}):\n    print(i)`,type:'num',ans:arr.length,
+    hint:`Tallene er ${a}, ${a+st}, ${a+2*st}, … og stopper før ${b}.`,why:`Løkka skriver ut ${arr.join(', ')}. Det er ${arr.length} tall.`};
+  return {q:'Hvilket tall blir skrevet ut sist?',code:`for i in range(${a}, ${b}, ${st}):\n    print(i)`,type:'num',ans:arr[arr.length-1],
+    hint:'Sluttverdien i range er ikke med.',why:`Tallene er ${arr.join(', ')}. Det siste er ${arr[arr.length-1]}.`};
+}
+function gWhile(){
+  const m=pick([2,3]),lim=pick([100,500,1000,2000]);let x=1,n=0;while(x<lim){x*=m;n++;}
+  const ask=Math.random()<.5;
+  return {q:ask?'Hva skriver programmet ut?':'Hva skriver programmet ut for antall?',
+    code:`x = 1\nantall = 0\nwhile x < ${lim}:\n    x = x * ${m}\n    antall = antall + 1\nprint(${ask?'x':'antall'})`,type:'num',ans:ask?x:n,
+    hint:`Følg x steg for steg: 1, ${m}, ${m*m}, …`,why:`x blir ${m}<sup>${n}</sup> = ${x} etter ${n} runder, første gang x ≥ ${lim}.`};
+}
+function gFib(){
+  const n=ri(5,10);let a=1,b=1;for(let i=0;i<n;i++)[a,b]=[b,a+b];
+  return {q:'Hva skriver programmet ut?',code:`a = 1\nb = 1\nfor i in range(${n}):\n    a, b = b, a + b\nprint(a)`,type:'num',ans:a,
+    hint:'Skriv opp verdiene til a og b etter hver runde.',why:`Dette er Fibonacci-tallene 1, 1, 2, 3, 5, 8, … Etter ${n} runder er a = ${a}.`};
+}
+function gMultipler(){
+  const k=pick([3,4,6,7,9]),N=pick([30,50,100]);let c=0;for(let t=1;t<=N;t++)if(t%k===0)c++;
+  return {q:'Hva skriver programmet ut?',code:`antall = 0\nfor tall in range(1, ${N+1}):\n    if tall % ${k} == 0:\n        antall += 1\nprint(antall)`,type:'num',ans:c,
+    hint:'% gir resten ved heltallsdivisjon. Resten 0 betyr at tallet er delelig.',why:`Tall fra 1 til ${N} som er delelige med ${k}: ${k}, ${2*k}, … Det er ${c} stykker.`};
+}
+function gCollatz(){
+  const s=pick([6,7,9,12,15,17,19,22,25]);let n=s,st=0;while(n!==1){n=n%2===0?n/2:3*n+1;st++;}
+  return {q:'Hva skriver programmet ut?',code:`n = ${s}\nsteg = 0\nwhile n != 1:\n    if n % 2 == 0:\n        n = n // 2\n    else:\n        n = 3 * n + 1\n    steg += 1\nprint(steg)`,type:'num',ans:st,
+    hint:'Skriv opp n etter hver runde til du kommer til 1.',why:`Veien er ${(()=>{let m=s,p=[s];while(m!==1){m=m%2===0?m/2:3*m+1;p.push(m);}return p.join(' → ');})()}. Det er ${st} steg.`};
+}
+function gFyllInn(){
+  const P=[
+    ['Programmet skal skrive ut summen av kvadratene 1² + 2² + … + 10². Hva skal stå i stedet for ___ ?','s = 0\nfor i in range(1, 11):\n    s = s + ___\nprint(s)',['i ** 2','i * 2','i ^ 2','2 ** i'],0,'I Python er ** potens. Tegnet ^ betyr noe annet (XOR).'],
+    ['Programmet skal skrive ut de 8 første potensene av 2: 1, 2, 4, 8, … Hva skal stå i stedet for ___ ?','for n in range(8):\n    print(___)',['2 * n','n ** 2','2 ** n','2 ^ n'],2,'2 ** n er 2 opphøyd i n. For n = 0 får vi 1.'],
+    ['Hva skal stå i stedet for ___ for å teste om tallet er et partall?','if tall ___ == 0:\n    print("partall")',['/ 2','% 2','// 2','* 2'],1,'tall % 2 gir resten ved deling på 2. Partall har rest 0.'],
+    ['Programmet skal skrive ut kvadratroten av 49. Hva skal stå i stedet for ___ ?','import math\nprint(math.___(49))',['root','sqrt','sqr','rot'],1,'Funksjonen heter sqrt (square root).'],
+    ['Programmet skal skrive ut de 6 første leddene i en aritmetisk følge med a₁ = 3 og d = 5. Hva skal stå i stedet for ___ ?','a1 = 3\nd = 5\nfor n in range(1, 7):\n    print(a1 + ___ * d)',['n','n + 1','(n - 1)','n * 2'],2,'a<sub>n</sub> = a<sub>1</sub> + (n − 1) · d.'],
+    ['Hva skriver programmet ut?','print(7 // 2, 7 % 2, 7 / 2)',['3 1 3.5','3.5 1 3','3 1 3','4 1 3.5'],0,'// er heltallsdivisjon, % er rest og / er vanlig divisjon.'],
+  ];
+  const [q,code,o,a,why]=pick(P);
+  return {q,code,type:'choice',opts:o,ans:a,hint:'Prøv alternativene på de første verdiene for hånd.',why};
+}
+
+const TOPICS=[
+ {id:'mengder',name:'Tallmengder',subs:[
+   {id:'a',name:'Hvilken tallmengde?',gen:gMinste},{id:'b',name:'Sant eller usant',gen:gSannUsann},
+   {id:'c',name:'Intervaller',gen:gIntervall},{id:'d',name:'Telle hele tall',gen:gAntallHele},{id:'e',name:'Irrasjonale tall',gen:gIrrasjonal}]},
+ {id:'potenser',name:'Potenser',subs:[
+   {id:'a',name:'Regn ut',gen:gRegnUt},{id:'b',name:'Regneregler',gen:gRegler},{id:'c',name:'Negative eksponenter',gen:gNegEksp},
+   {id:'d',name:'Standardform',gen:gStandard},{id:'e',name:'Sammenlikn',gen:gStorst}]},
+ {id:'rotter',name:'Røtter',subs:[
+   {id:'a',name:'Regn ut',gen:gRotVerdi},{id:'b',name:'Rotregler',gen:gRotRegler},{id:'c',name:'Forenkle',gen:gForenkle},
+   {id:'d',name:'Brøkeksponent',gen:gBrokEksp},{id:'e',name:'Estimer',gen:gEstimer},{id:'f',name:'Likninger',gen:gLikning}]},
+ {id:'monster',name:'Mønstre',subs:[
+   {id:'a',name:'Aritmetiske følger',gen:gAritm},{id:'b',name:'Geometriske følger',gen:gGeom},{id:'c',name:'Figurer',gen:gFigur},
+   {id:'d',name:'Finn formelen',gen:gFormel},{id:'e',name:'Summer',gen:gSum},{id:'f',name:'Generalisering',gen:gBevis}]},
+ {id:'prog',name:'Programmering',subs:[
+   {id:'a',name:'Løkker',gen:gSumLoop},{id:'b',name:'Steg i range',gen:gSteg},{id:'c',name:'while-løkker',gen:gWhile},
+   {id:'d',name:'Fibonacci',gen:gFib},{id:'e',name:'Rest og delelighet',gen:gMultipler},{id:'f',name:'Collatz',gen:gCollatz},{id:'g',name:'Fyll inn',gen:gFyllInn}]},
+];
+if(typeof globalThis!=='undefined')globalThis.__TOPICS=TOPICS;
+
+/* ---------- Appen ---------- */
+if(typeof document!=='undefined'){
+const $=id=>document.getElementById(id);
+const KEY='talltrener-1t';
+let stats={};try{stats=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}};
+const S={tab:'alle',sub:'alle',q:null,done:false,hint:false,c:0,t:0,streak:0};
+const TABS=[{id:'alle',name:'Blandet'},...TOPICS,{id:'utforsk',name:'Utforsk'}];
+
+function parseNum(s){
+  s=String(s).trim().replace(/\s/g,'').replace(/[−–]/g,'-').replace(',','.');
+  if(/^-?\d+(\.\d+)?\/-?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/').map(Number);return b===0?NaN:a/b;}
+  return /^-?\d+(\.\d+)?$/.test(s)?Number(s):NaN;
+}
+function poolFor(){
+  let subs=[];
+  if(S.tab==='alle')TOPICS.forEach(t=>t.subs.forEach(s=>subs.push(s)));
+  else{const t=TOPICS.find(t=>t.id===S.tab);subs=S.sub==='alle'?t.subs:t.subs.filter(s=>s.id===S.sub);}
+  return subs;
+}
+function newQ(){
+  const s=pick(poolFor());S.q=s.gen();S.q.subName=s.name;S.done=false;S.hint=false;renderStage();
+}
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(t=>{const st=stats[t.id];
+    return `<button class="tab" role="tab" data-tab="${t.id}" aria-selected="${t.id===S.tab}">${t.name}${st&&st.t?`<small>${st.c}/${st.t}</small>`:''}</button>`}).join('');
+}
+function renderSubs(){
+  const el=$('subs');
+  if(S.tab==='alle'||S.tab==='utforsk'){el.innerHTML='';return;}
+  const t=TOPICS.find(t=>t.id===S.tab);
+  el.innerHTML=`<span class="lbl">Underoppgaver</span><button class="chip" data-sub="alle" aria-pressed="${S.sub==='alle'}">Alle</button>`+
+    t.subs.map(s=>`<button class="chip" data-sub="${s.id}" aria-pressed="${S.sub===s.id}">${s.name}</button>`).join('');
+}
+function renderScore(){$('sc').textContent=`${S.c}/${S.t}`;$('st').textContent=S.streak;}
+function renderStage(){
+  if(S.tab==='utforsk'){renderExplore();return;}
+  const q=S.q;
+  let h=`<section class="card"><div class="kicker">${q.subName}</div><p class="q">${q.q}</p>${q.html||''}${q.code?`<pre><code>${q.code.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></pre>`:''}`;
+  if(q.type==='num'){
+    h+=`<div class="row"><input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Svar" placeholder="Svar" ${S.done?'disabled':''} value="${S.done?(q.given||''):''}">
+    <button class="btn" id="check" ${S.done?'disabled':''}>Sjekk</button></div>`;
+  } else {
+    h+=`<div class="opts">${q.opts.map((o,i)=>{let c='opt';if(S.done){if(i===q.ans)c+=' right';else if(i===q.pick)c+=' wrong';}
+      return `<button class="${c}" data-opt="${i}" ${S.done?'disabled':''}>${o}</button>`}).join('')}</div>`;
+  }
+  if(S.hint&&!S.done)h+=`<div class="hint">${q.hint}</div>`;
+  if(S.done){
+    const ok=q.ok;
+    h+=`<div class="fb ${ok?'ok':'no'}" role="status"><strong>${ok?pick(['Riktig!','Det stemmer!','Bra jobbet!']):'Ikke helt.'}</strong>${ok?'':`Riktig svar: <b>${q.type==='num'?(q.show||dec(q.ans)):q.opts[q.ans]}</b>. `}${q.why}</div>`;
+  }
+  h+=`<div class="row">${S.done?'<button class="btn" id="next">Neste oppgave</button>':`<button class="btn ghost" id="hintb">Hint</button><button class="btn ghost" id="skip">Hopp over</button><button class="btn ghost" id="give">Vis svar</button>`}</div></section>`;
+  $('stage').innerHTML=h;
+  const a=$('ans');if(a&&!S.done)a.focus();
+  if(S.done){const n=$('next');if(n)n.focus();}
+}
+function record(ok){
+  const st=stats[S.tab]||(stats[S.tab]={c:0,t:0});st.t++;if(ok)st.c++;save();
+  S.t++;if(ok){S.c++;S.streak++;}else S.streak=0;
+  S.q.ok=ok;S.done=true;renderScore();renderTabs();renderStage();
+}
+function checkNum(){
+  const q=S.q,inp=$('ans');if(!inp||!inp.value.trim()){inp&&inp.focus();return;}
+  q.given=inp.value;const v=parseNum(inp.value);
+  record(!isNaN(v)&&Math.abs(v-q.ans)<=1e-6*Math.max(1,Math.abs(q.ans)));
+}
+
+/* Utforsk */
+function renderExplore(){
+  $('stage').innerHTML=`<div class="tools">
+   <section class="card tool"><h2>Tallfølger</h2>
+    <div class="row"><label>Type <select id="sq-type" class="sm"><option value="a">Aritmetisk</option><option value="g">Geometrisk</option></select></label>
+     <label>a<sub>1</sub> <input id="sq-a" class="sm" type="number" value="3"></label>
+     <label id="sq-dl">d <input id="sq-d" class="sm" type="number" value="4"></label>
+     <label>Antall ledd <input id="sq-n" class="sm" type="number" min="1" max="15" value="8"></label></div>
+    <div class="terms" id="sq-out"></div><div id="sq-info"></div>
+    <p class="note">Tenk selv: Hva skjer med summen når du dobler d? Hva skjer med leddene når k er mellom 0 og 1, eller negativ?</p></section>
+   <section class="card tool"><h2>Potenstabell</h2>
+    <div class="row"><label>Grunntall <input id="pw-b" class="sm" type="number" value="2"></label></div>
+    <div class="scroll"><table id="pw-t"></table></div>
+    <p class="note">Tenk selv: Hva er sammenhengen mellom a<sup>n</sup> og a<sup>${U}n</sup>? Hvorfor blir a<sup>0</sup> alltid 1?</p></section>
+   <section class="card tool"><h2>Collatz-rekka</h2>
+    <p class="note" style="margin:0">Hvis tallet er partall, del på 2. Hvis det er oddetall, gang med 3 og legg til 1. Gjenta til du kommer til 1.</p>
+    <div class="row"><label>Startverdi <input id="cz-n" class="sm" type="number" min="1" max="100000" value="27"></label></div>
+    <div class="terms" id="cz-out"></div><div id="cz-info"></div>
+    <p class="note">Tenk selv: Finn en startverdi under 30 som bruker flest steg. Skriv et Python-program som teller stegene og sjekk svaret.</p></section></div>`;
+  const nf=x=>Number.isInteger(x)?ns(x.toLocaleString('nb-NO').replace(/ /g,' ')):dec(x);
+  const seq=()=>{
+    const ty=$('sq-type').value,a=+$('sq-a').value,d=+$('sq-d').value,n=Math.max(1,Math.min(15,+$('sq-n').value||1));
+    $('sq-dl').firstChild.textContent=ty==='a'?'d ':'k ';
+    const L=[...Array(n)].map((_,i)=>ty==='a'?a+i*d:a*d**i);
+    $('sq-out').innerHTML=L.map(x=>`<span>${nf(x)}</span>`).join('');
+    const sum=L.reduce((p,c)=>p+c,0);
+    $('sq-info').innerHTML=ty==='a'?`a<sub>n</sub> = ${ns(a)} + (n − 1) · ${par(d)}<br>S<sub>${n}</sub> = ${nf(sum)}`:`a<sub>n</sub> = ${ns(a)} · ${par(d)}<sup>n−1</sup><br>S<sub>${n}</sub> = ${nf(sum)}`;
+  };
+  const pw=()=>{
+    const b=+$('pw-b').value||0;let r='<tr><th>n</th>',v='<tr><th>'+(b<0?`(${ns(b)})`:ns(b))+'<sup>n</sup></th>';
+    for(let n=-3;n<=8;n++){r+=`<th>${ns(n)}</th>`;
+      let x=b**n,t;if(b===0&&n<=0)t='ikke definert';else if(n<0&&Number.isInteger(b))t=`1/${nf(b**(-n))}`;else t=nf(x);
+      v+=`<td>${t}</td>`;}
+    $('pw-t').innerHTML=r+'</tr>'+v+'</tr>';
+  };
+  const cz=()=>{let n=Math.max(1,Math.floor(+$('cz-n').value||1)),p=[n],st=0,mx=n;
+    while(n!==1&&st<2000){n=n%2===0?n/2:3*n+1;p.push(n);st++;mx=Math.max(mx,n);}
+    $('cz-out').innerHTML=p.map(x=>`<span>${x}</span>`).join('');
+    $('cz-info').innerHTML=`${st} steg. Største tall på veien: ${mx}.`;};
+  ['sq-type','sq-a','sq-d','sq-n'].forEach(i=>$(i).addEventListener('input',seq));
+  $('pw-b').addEventListener('input',pw);$('cz-n').addEventListener('input',cz);
+  seq();pw();cz();
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.tab){S.tab=t.dataset.tab;S.sub='alle';renderTabs();renderSubs();if(S.tab==='utforsk')renderExplore();else newQ();return;}
+  if(t.dataset.sub){S.sub=t.dataset.sub;renderSubs();newQ();return;}
+  if(t.dataset.opt!==undefined&&!S.done){S.q.pick=+t.dataset.opt;record(S.q.pick===S.q.ans);return;}
+  if(t.id==='check')checkNum();
+  else if(t.id==='hintb'){S.hint=true;renderStage();}
+  else if(t.id==='skip')newQ();
+  else if(t.id==='give'){S.q.given='';record(false);}
+  else if(t.id==='next')newQ();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target&&e.target.id==='ans')checkNum();
+});
+renderTabs();renderSubs();renderScore();newQ();
+}
+</script>
+
+</body>
+</html>

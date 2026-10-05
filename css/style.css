@@ -99,3 +99,13 @@ a.card:hover{border-color:var(--accent)}
 a.card h2{font-size:1.25rem}
 .tag{justify-self:start;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;background:var(--mark);color:var(--mark-ink);padding:2px 8px;border-radius:4px}
 footer{max-width:720px;margin-inline:auto;padding:0 16px 40px;color:var(--muted);font-size:.9rem}
+
+/* Fagdeler på forsiden */
+.sect{display:flex;flex-direction:column;gap:12px;scroll-margin-top:16px}
+.sect-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:2px solid var(--fg);padding-bottom:6px}
+.sect-head h2{font-size:1.6rem;font-weight:800}
+a.card h3{font-family:var(--f-display);margin:0;font-size:1.25rem;font-weight:600;text-wrap:balance;letter-spacing:-.01em}
+.subj{display:flex;flex-wrap:wrap;gap:8px}
+.subj a{font-weight:700;color:var(--fg);text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 16px}
+.subj a:hover{border-color:var(--accent);color:var(--accent)}
+.subj a:focus-visible,a.card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}

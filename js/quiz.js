@@ -17,7 +17,7 @@ function render(){
   $('fb').innerHTML='';$('go').textContent='Sjekk';$('go').disabled=false;$('reset').hidden=q.t!=='order';
   const c=$('card');
   if(q.t==='fill'){
-    c.innerHTML=`<p class="nb">${q.no}</p><div class="sent">${q.pre}<input class="blank" id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Svar">${/^[.,!?]/.test(q.post.trim())?'':' '}${q.post.trim()} <span class="inf">(${q.inf})</span></div><div class="keys" aria-label="Spesialtegn">${['ä','ö','ü','ß'].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`;
+    c.innerHTML=`<p class="nb">${q.no}</p><div class="sent">${q.pre}<input class="blank${q.short?' short':''}" id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Svar">${/^[.,!?]/.test(q.post.trim())?'':' '}${q.post.trim()} <span class="inf">(${q.inf})</span></div><div class="keys" aria-label="Spesialtegn">${['ä','ö','ü','ß'].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`;
     const inp=$('inp');inp.focus();
     c.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(done)return;inp.value+=b.dataset.k;inp.focus()});
     

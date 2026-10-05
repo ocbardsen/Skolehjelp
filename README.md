@@ -5,9 +5,10 @@ Interaktive øvelser til skolearbeid. Nettsiden er vanlig HTML, CSS og JavaScrip
 - `index.html`: forside med oversikt over øvelsene
 - `modalverber.html`: tyske modalverb i presens (A1–A2), 30 oppgaver
 - `modalverber-fortid.html`: modalverb i fortid (B1), 30 oppgaver
+- `kasus-verb-vg1.html` og `kasus-verb-vg2.html`: kasus og verbbøyning for vg1 og vg2, 30 oppgaver hver
 - `css/style.css`: felles stil
 - `js/quiz.js`: felles logikk for øvelsene
-- `js/modalverber.js` og `js/fortid.js`: oppgavene
+- `js/modalverber.js`, `js/fortid.js`, `js/vg1.js` og `js/vg2.js`: oppgavene
 
 ## Publisere med GitHub Pages
 

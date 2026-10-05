@@ -55,6 +55,7 @@ td b{font-weight:700}
 .nb{color:var(--muted);font-style:italic}
 .sent{font-family:var(--f-display);font-size:clamp(1.3rem,4.6vw,1.75rem);line-height:1.5;font-weight:600;overflow-wrap:anywhere}
 .blank{font:inherit;font-weight:800;width:7.2em;max-width:100%;border:0;border-bottom:3px solid var(--accent);background:transparent;color:var(--fg);text-align:center;padding:0 2px;border-radius:0}
+.blank.short{width:2.8em;display:inline-block}
 .blank:focus{outline:none;background:var(--mark);color:var(--mark-ink)}
 .blank.ok{border-color:var(--good);color:var(--good)}.blank.no{border-color:var(--bad);color:var(--bad)}
 .inf{font-size:.95rem;font-weight:700;color:var(--accent);white-space:nowrap}

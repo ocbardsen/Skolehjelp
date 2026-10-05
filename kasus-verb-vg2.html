@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kasus og verbbøyning vg2 – Skolehjelp</title>
+<meta name="description" content="Interaktiv tysk-øvelse for vg2: adjektivendelser, genitiv, preteritum, Konjunktiv II og passiv.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site"><a href="index.html">Skolehjelp</a><a class="back" href="index.html">← Alle øvelser</a></header>
+<main class="wrap">
+  <section id="intro" class="wrap" style="padding:0;gap:20px">
+    <div style="display:grid;gap:10px">
+      <span class="lbl">Tysk · vg2</span>
+      <h1>Kasus og verbbøyning: <span class="mk">adjektiv, genitiv</span> og fortid</h1>
+      <p class="muted">For deg som har hatt tysk på ungdomsskolen og har tysk i vg2. 30 oppgaver i fem deler. Du får svar og en kort forklaring etter hver oppgave.</p>
+    </div>
+
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>Adjektivendelser</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th></th><th>hankjønn</th><th>hunkjønn</th><th>nøytrum</th><th>flertall</th></tr></thead>
+        <tbody>
+          <tr><td>Nominativ</td><td>der neue / ein neuer</td><td>die neue / eine neue</td><td>das neue / ein neues</td><td>die neuen</td></tr>
+          <tr><td>Akkusativ</td><td>den neuen / einen neuen</td><td>die neue / eine neue</td><td>das neue / ein neues</td><td>die neuen</td></tr>
+          <tr><td>Dativ</td><td>dem neuen / einem neuen</td><td>der neuen / einer neuen</td><td>dem neuen / einem neuen</td><td>den neuen</td></tr>
+          <tr><td>Genitiv</td><td>des neuen / eines neuen</td><td>der neuen / einer neuen</td><td>des neuen / eines neuen</td><td>der neuen</td></tr>
+        </tbody></table></div>
+      <p class="muted">Uten artikkel viser adjektivet kasus selv: <i>kalter Tee, kalten Tee, kaltem Tee</i>.</p>
+    </div>
+
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>Genitiv og vekselpreposisjoner</h2>
+      <ul class="rules">
+        <li><code>wegen, trotz, während, statt</code><span>Disse tar genitiv: <i>wegen des Wetters</i>.</span></li>
+        <li><code>an, auf, in, über, unter, vor …</code><span>Retning gir akkusativ, sted gir dativ: <i>Ich gehe in die Schule. Ich bin in der Schule.</i></span></li>
+        <li><code>Relativpronomen</code><span>Kasus bestemmes av verbet i leddsetningen: <i>der Mann, dem ich geholfen habe</i>.</span></li>
+      </ul>
+    </div>
+
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>Verbformer</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Infinitiv</th><th>Preteritum</th><th>Partizip II</th></tr></thead>
+        <tbody>
+          <tr><td>bleiben</td><td>blieb</td><td>geblieben</td></tr>
+          <tr><td>schreiben</td><td>schrieb</td><td>geschrieben</td></tr>
+          <tr><td>gehen</td><td>ging</td><td>gegangen</td></tr>
+          <tr><td>singen</td><td>sang</td><td>gesungen</td></tr>
+          <tr><td>laufen</td><td>lief</td><td>gelaufen</td></tr>
+          <tr><td>vergessen</td><td>vergaß</td><td>vergessen</td></tr>
+          <tr><td>gefallen</td><td>gefiel</td><td>gefallen</td></tr>
+        </tbody></table></div>
+      <ul class="rules">
+        <li><code>hätte, wäre, würde + infinitiv</code><span>Konjunktiv II brukes om noe som er uvirkelig eller ønsket.</span></li>
+        <li><code>wird / wurde + Partizip II</code><span>Passiv i presens og preteritum.</span></li>
+      </ul>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="start" type="button">Start øvelsen</button>
+      <span class="muted">Fyll inn, flervalg og sett sammen setningen</span>
+    </div>
+  </section>
+
+  <section id="quiz" class="wrap" style="padding:0;gap:16px" hidden>
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="legend"><span class="g">Riktig</span><span class="r">Feil</span><span class="c">Denne oppgaven</span><span>Ikke besvart</span></div>
+    <div class="meta"><span class="lbl" id="part"></span><span class="qno" id="count"></span></div>
+    <div class="panel" id="card" style="display:grid;gap:16px"></div>
+    <div id="fb" aria-live="polite"></div>
+    <div class="row"><button class="btn" id="go" type="button">Sjekk</button><button class="btn ghost" id="reset" type="button" hidden>Nullstill</button></div>
+  </section>
+
+  <section id="end" class="wrap" style="padding:0;gap:18px" hidden>
+    <span class="lbl">Resultat</span>
+    <div class="big"><span id="score"></span></div>
+    <p id="verdict" class="muted"></p>
+    <div class="scores" id="scores"></div>
+    <div id="missWrap" style="display:grid;gap:10px"><h2>Dette bør du øve mer på</h2><ul class="miss" id="miss"></ul></div>
+    <div class="row"><button class="btn" id="again" type="button" hidden>Øv på det du bommet på</button><button class="btn ghost" id="restart" type="button">Start på nytt</button></div>
+  </section>
+</main>
+<script src="js/vg2.js"></script>
+<script src="js/quiz.js"></script>
+</body>
+</html>

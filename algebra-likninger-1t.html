@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Algebra og likninger 1T</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: rutepapir-bakgrunn, én kolonne med faner øverst og et oppgavekort i midten. */
+:root{
+  --bg:#F3F7FB; --grid:#D9E6F2; --paper:#FFFFFF; --ink:#17284F; --ink2:#4A5B7E; --line:#C9D6E6;
+  --hi:#FFE066; --good:#17784C; --goodbg:#E3F5EB; --bad:#B8322A; --badbg:#FCE9E7; --btnfg:#FFFFFF;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Source Sans 3','Segoe UI',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1730; --grid:#1A2647; --paper:#16203E; --ink:#E8EEFC; --ink2:#9DAACB; --line:#2C3A63;
+  --hi:#F2C94C; --good:#4CC38A; --goodbg:#12332A; --bad:#FF8379; --badbg:#3A1B22; --btnfg:#0F1730; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1730; --grid:#1A2647; --paper:#16203E; --ink:#E8EEFC; --ink2:#9DAACB; --line:#2C3A63;
+  --hi:#F2C94C; --good:#4CC38A; --goodbg:#12332A; --bad:#FF8379; --badbg:#3A1B22; --btnfg:#0F1730; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--f-body); font-size:17px; line-height:1.5;
+  padding-inline:16px; padding-block:24px 56px;
+}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 mark{background:linear-gradient(transparent 55%,var(--hi) 55%);color:inherit;padding:0 2px}
+.sub{margin:4px 0 0;color:var(--ink2);font-size:15px}
+.score{display:flex;gap:8px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 12px;min-width:84px}
+.stat b{display:block;font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+
+#tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{font:600 15px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tab small{font:400 12px var(--f-mono);color:var(--ink2);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--btnfg);border-color:var(--ink)}
+.tab[aria-selected="true"] small{color:var(--btnfg);opacity:.75}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+#subs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#subs .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-right:4px}
+.chip{font:400 14px var(--f-body);color:var(--ink);background:transparent;border:1px dashed var(--ink2);border-radius:99px;padding:3px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--hi);border:1px solid var(--hi);color:#17284F;font-weight:600}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:16px;box-shadow:0 2px 0 var(--line)}
+.kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.q{font-size:20px;line-height:1.6;margin:0;min-width:0;overflow-wrap:anywhere}
+.q b{font-weight:600}
+pre{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:400 15px/1.55 var(--f-mono);color:var(--ink)}
+.figs{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}
+.figs figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.figs figcaption{font-size:13px;color:var(--ink2)}
+.figs svg{max-width:100%;height:auto}
+.figs line{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=text],input[type=number],select{font:400 20px var(--f-mono);color:var(--ink);background:var(--bg);border:2px solid var(--ink2);border-radius:8px;padding:8px 12px;width:min(100%,220px)}
+input.sm,select.sm{font-size:16px;width:96px;padding:5px 8px}
+select.sm{width:auto}
+.btn{font:600 16px var(--f-body);border-radius:8px;padding:9px 18px;cursor:pointer;border:2px solid var(--ink);background:var(--ink);color:var(--btnfg)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.45;cursor:default}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.opt{font:400 18px var(--f-body);text-align:left;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.opt:hover:not([disabled]){border-color:var(--ink2)}
+.opt.right{border-color:var(--good);background:var(--goodbg)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+.opt[disabled]{cursor:default}
+.fb{border-radius:8px;padding:12px 14px;font-size:16px}
+.fb.ok{background:var(--goodbg);border-left:5px solid var(--good)}
+.fb.no{background:var(--badbg);border-left:5px solid var(--bad)}
+.fb strong{display:block;font-family:var(--f-display);font-size:18px}
+.hint{font-size:16px;border-left:5px solid var(--hi);padding:4px 12px;color:var(--ink2)}
+.note{font-size:14px;color:var(--ink2)}
+
+sup{font-size:.7em;line-height:0}
+sub{font-size:.7em;line-height:0}
+.rt{white-space:nowrap}
+.rt .ov{border-top:1.5px solid currentColor;padding:0 2px;margin-left:1px}
+.rt .ix{font-size:.6em;margin-right:-1px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.85em;line-height:1.15;margin:0 2px}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+sup .fr{font-size:1em}
+
+.tools{display:flex;flex-direction:column;gap:16px}
+.tool h2{font-family:var(--f-display);font-size:22px;margin:0}
+.terms{display:flex;flex-wrap:wrap;gap:6px}
+.terms span{font:400 15px var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums}
+table{border-collapse:collapse;font:400 15px var(--f-mono);font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:right}
+th{background:var(--bg);font-weight:600}
+.scroll{overflow-x:auto;max-width:100%}
+label{font-size:15px;display:flex;align-items:center;gap:6px}
+@media (prefers-reduced-motion:no-preference){.fb{animation:pop .2s ease-out}@keyframes pop{from{transform:translateY(4px);opacity:0}to{transform:none;opacity:1}}}
+input.wide{width:min(100%,360px)}
+.keys{display:flex;flex-wrap:wrap;gap:6px}
+.key{font:600 16px var(--f-mono);min-width:42px;height:38px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;cursor:pointer;box-shadow:0 2px 0 var(--line)}
+.key:hover{border-color:var(--ink2)}
+svg .gl{stroke:var(--line);stroke-width:1}
+svg .ax{stroke:var(--ink2);stroke-width:1.6}
+svg .cv{fill:none;stroke:var(--ink);stroke-width:2.5}
+svg .rp{fill:var(--hi);stroke:var(--ink);stroke-width:2}
+svg .vp{fill:var(--ink)}
+svg .r1{fill:var(--hi);stroke:var(--ink);stroke-width:2}
+svg .r2{fill:var(--line);stroke:var(--ink);stroke-width:2}
+svg .r3{fill:var(--bg);stroke:var(--ink);stroke-width:2}
+svg .tx{fill:var(--ink);font:600 18px var(--f-mono)}
+label sub{font-size:.7em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Algebra og <mark>likninger</mark></h1>
+      <p class="sub">Kapittel 2. Repetisjon til Matematikk 1T. Nye oppgaver hver gang.</p>
+      <p class="sub"><a href="index.html" style="color:inherit">← Tilbake til Skolehjelp</a></p>
+    </div>
+    <div class="score" aria-live="polite">
+      <div class="stat"><b id="sc">0/0</b><span>Riktig</span></div>
+      <div class="stat"><b id="st">0</b><span>På rad</span></div>
+    </div>
+  </header>
+  <nav id="tabs" role="tablist" aria-label="Emner"></nav>
+  <div id="subs"></div>
+  <main id="stage"></main>
+</div>
+
+<script>
+/* ---------- hjelpefunksjoner ---------- */
+const U='−';
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[ri(0,a.length-1)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const sup=(b,e)=>`${b}<sup>${String(e).replace('-',U)}</sup>`;
+const frac=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+const rt=x=>`<span class="rt">√<span class="ov">${x}</span></span>`;
+const ns=n=>String(n).replace('-',U);
+const dec=x=>String(+x.toFixed(6)).replace('.',',').replace('-',U);
+const par=a=>a<0?`(${U}${-a})`:String(a);
+const sgn=n=>n<0?`${U} ${-n}`:`+ ${n}`;
+const mc=(right,wrongs)=>{const all=shuffle([right,...wrongs]);return {opts:all,ans:all.indexOf(right)};};
+const isSq=n=>n>=0&&Number.isInteger(Math.sqrt(n));
+/* polynom, høyeste grad først: poly([a,b,c]) gir ax² + bx + c */
+function poly(cs,v='x'){
+  const n=cs.length-1;let out='';
+  cs.forEach((c,i)=>{const d=n-i;if(c===0)return;const abs=Math.abs(c);let t;
+    if(d===0)t=String(abs);else{const co=abs===1?'':String(abs);t=co+(d===1?v:sup(v,d));}
+    if(out==='')out=(c<0?U:'')+t;else out+=(c<0?` ${U} `:' + ')+t;});
+  return out||'0';
+}
+const lin=(a,b)=>poly([a,b]);
+const mulLin=(p,a,q,b)=>[p*q,p*b+q*a,a*b];
+const fnP=cs=>x=>cs.reduce((s,c)=>s*x+c,0);
+const facX=r=>`(x ${r<0?'+':U} ${Math.abs(r)})`;
+const eq0=(a,b,c)=>`${poly([a,b,c])} = 0`;
+const PTS=[-2.5,-1.5,-0.5,0.5,1.5,2.5,3.5,4.5];
+const sameFn=(f,g)=>PTS.every(x=>{const a=f(x),b=g(x);return isFinite(a)&&isFinite(b)&&Math.abs(a-b)<=1e-6*Math.max(1,Math.abs(b));});
+
+/* uttrykksparser: leser f.eks. 3x^2-2(x+1)(x-1) som en funksjon av x */
+function parseExpr(str){
+  let s=String(str).toLowerCase().replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/[·×]/g,'*').replace(/²/g,'^2').replace(/³/g,'^3').replace(/,/g,'.');
+  if(!s||!/^[0-9x+\-*/().^]+$/.test(s))return null;
+  s=s.replace(/(\d|x|\))(?=x|\()/g,'$1*').replace(/\)(?=\d)/g,')*');
+  let i=0;const peek=()=>s[i];
+  function expr(){let v=term();while(peek()==='+'||peek()==='-'){const o=s[i++],r=term(),l=v;v=o==='+'?x=>l(x)+r(x):x=>l(x)-r(x);}return v;}
+  function term(){let v=unary();while(peek()==='*'||peek()==='/'){const o=s[i++],r=unary(),l=v;v=o==='*'?x=>l(x)*r(x):x=>l(x)/r(x);}return v;}
+  function unary(){if(peek()==='-'){i++;const u=unary();return x=>-u(x);}if(peek()==='+'){i++;return unary();}return power();}
+  function power(){const b=atom();if(peek()==='^'){i++;const e=unary();return x=>Math.pow(b(x),e(x));}return b;}
+  function atom(){
+    if(peek()==='('){i++;const v=expr();if(peek()!==')')throw 0;i++;return v;}
+    if(peek()==='x'){i++;return x=>x;}
+    const m=/^\d+(\.\d+)?/.exec(s.slice(i));if(!m)throw 0;i+=m[0].length;const n=+m[0];return ()=>n;}
+  try{const f=expr();return i===s.length?{f,s}:null;}catch(e){return null;}
+}
+
+/* ---------- Identiteter ---------- */
+function gMult(){
+  if(Math.random()<.5){
+    let a,b,c,d,e,f,k,m;
+    do{a=ri(2,6);b=ri(1,5)*pick([-1,1]);c=ri(-6,6);d=ri(2,5);e=ri(1,4)*pick([-1,1]);f=ri(-6,6);k=a*b-d*e;m=a*c-d*f;}while(k===0||c===0||f===0);
+    return {q:`Multipliser ut og trekk sammen:<br><b>${a}(${lin(b,c)}) ${U} ${d}(${lin(e,f)})</b>`,type:'expr',form:'expanded',
+      orig:x=>a*(b*x+c)-d*(e*x+f),ansFn:fnP([k,m]),show:poly([k,m]),
+      hint:'Gang inn i hver parentes. Pass på fortegnet når du ganger med et negativt tall, og trekk så sammen like ledd.',
+      why:`${a}·(${lin(b,c)}) = ${poly([a*b,a*c])} og ${U}${d}·(${lin(e,f)}) = ${poly([-d*e,-d*f])}. Sammen blir det ${poly([k,m])}.`};
+  }
+  let p,q,a,b;do{p=pick([1,1,2,3]);q=pick([1,1,2]);a=ri(-6,6);b=ri(-6,6);}while(a===0||b===0);
+  const cs=mulLin(p,a,q,b);
+  return {q:`Multipliser ut og trekk sammen:<br><b>(${lin(p,a)})(${lin(q,b)})</b>`,type:'expr',form:'expanded',
+    orig:x=>(p*x+a)*(q*x+b),ansFn:fnP(cs),show:poly(cs),
+    hint:'Hvert ledd i den første parentesen ganges med hvert ledd i den andre. Trekk så sammen x-leddene.',
+    why:`Ledd for ledd: ${poly([p*q,0,0])} + ${poly([p*b,0])} + ${poly([q*a,0])} + ${ns(a*b)}. Trekk sammen: ${poly(cs)}.`};
+}
+function gErIdentitet(){
+  const a=ri(2,7),k=ri(2,5);
+  const I=[
+    {l:x=>(x+a)**2,r:x=>x*x+a*a,lt:`(x + ${a})<sup>2</sup>`,rt:`x<sup>2</sup> + ${a*a}`,t:false},
+    {l:x=>(x+a)**2,r:x=>x*x+2*a*x+a*a,lt:`(x + ${a})<sup>2</sup>`,rt:poly([1,2*a,a*a]),t:true},
+    {l:x=>(x-a)**2,r:x=>x*x-a*a,lt:`(x ${U} ${a})<sup>2</sup>`,rt:`x<sup>2</sup> ${U} ${a*a}`,t:false},
+    {l:x=>(x-a)**2,r:x=>x*x-2*a*x+a*a,lt:`(x ${U} ${a})<sup>2</sup>`,rt:poly([1,-2*a,a*a]),t:true},
+    {l:x=>(x+a)*(x-a),r:x=>x*x-a*a,lt:`(x + ${a})(x ${U} ${a})`,rt:`x<sup>2</sup> ${U} ${a*a}`,t:true},
+    {l:x=>(x+a)*(x-a),r:x=>x*x+a*a,lt:`(x + ${a})(x ${U} ${a})`,rt:`x<sup>2</sup> + ${a*a}`,t:false},
+    {l:x=>k*(x+a),r:x=>k*x+a,lt:`${k}(x + ${a})`,rt:`${k}x + ${a}`,t:false},
+    {l:x=>k*(x+a),r:x=>k*x+k*a,lt:`${k}(x + ${a})`,rt:`${k}x + ${k*a}`,t:true},
+    {l:x=>x*(x+a),r:x=>x*x+a,lt:`x(x + ${a})`,rt:`x<sup>2</sup> + ${a}`,t:false},
+    {l:x=>2*(x+3)-x,r:x=>x+6,lt:`2(x + 3) ${U} x`,rt:'x + 6',t:true},
+  ];
+  const it=pick(I);
+  const tx=[1,2,3].find(x=>it.l(x)!==it.r(x));
+  return {q:`Er dette en identitet? Altså, er den sann for alle verdier av x?<br><b>${it.lt} = ${it.rt}</b>`,type:'choice',
+    opts:['Ja, sann for alle x','Nei, ikke for alle x'],ans:it.t?0:1,truth:it.t,l:it.l,r:it.r,
+    hint:'Prøv en verdi for x, for eksempel x = 1 og x = 2, eller multipliser ut venstre side.',
+    why:it.t?'Når du multipliserer ut venstre side, får du nøyaktig høyre side.':`Prøv x = ${tx}: venstre side blir ${ns(it.l(tx))} og høyre side ${ns(it.r(tx))}. De er ulike, så det er ikke en identitet.`};
+}
+function gFinnK(){
+  const a=ri(2,9),b=ri(2,8),c=ri(2,5),t=ri(1,4);
+  const V=[
+    [`${a}(x + ${b}) = ${a}x + k`,a*b,`${a}(x + ${b}) = ${a}x + ${a*b}.`],
+    [`(x + ${a})<sup>2</sup> = x<sup>2</sup> + kx + ${a*a}`,2*a,`Første kvadratsetning: 2·${a} = ${2*a}.`],
+    [`(x + ${a})(x ${U} ${a}) = x<sup>2</sup> ${U} k`,a*a,`Tredje kvadratsetning gir x² ${U} ${a}², så k = ${a*a}.`],
+    [`${a}(x ${U} ${b}) + ${c}x = ${a+c}x ${U} k`,a*b,`${a}x ${U} ${a*b} + ${c}x = ${a+c}x ${U} ${a*b}.`],
+    [`(x ${U} ${a})<sup>2</sup> = x<sup>2</sup> ${U} kx + ${a*a}`,2*a,`Andre kvadratsetning: leddet i midten er ${U}2·${a}·x, så k = ${2*a}.`],
+  ];
+  const [s,k,why]=pick(V);
+  return {q:`Finn tallet k slik at likningen blir en identitet.<br><b>${s}</b>`,type:'num',ans:k,
+    hint:'Multipliser ut den ene siden og sammenlikn leddene med den andre siden.',why};
+}
+
+/* ---------- Faktorisering ---------- */
+function gFelles(){
+  const g=ri(2,6),p=ri(1,4),q=ri(1,6)*pick([1,-1]);
+  if(Math.random()<.5){const cs=[g*p,g*q,0];
+    return {q:`Faktoriser fullstendig:<br><b>${poly(cs)}</b>`,type:'expr',form:'factored',orig:fnP(cs),ansFn:fnP(cs),show:`${g}x(${lin(p,q)})`,
+      hint:'Finn den største felles faktoren, både tall og x. Sett den utenfor en parentes.',
+      why:`Felles faktor er ${g}x. ${poly(cs)} = ${g}x(${lin(p,q)}).`};}
+  const cs=[g*p,g*q];
+  return {q:`Faktoriser fullstendig:<br><b>${poly(cs)}</b>`,type:'expr',form:'factored',orig:fnP(cs),ansFn:fnP(cs),show:`${g}(${lin(p,q)})`,
+    hint:'Hvilket stort tall går opp i begge leddene?',why:`Felles faktor er ${g}. ${poly(cs)} = ${g}(${lin(p,q)}).`};
+}
+function gKvBak(){
+  const t=ri(1,3),a=ri(2,9),p=t===3?pick([1,2,3]):pick([1,1,2,3]);
+  let cs,show,why;
+  if(t===1){cs=[p*p,2*p*a,a*a];show=`(${lin(p,a)})<sup>2</sup>`;why='Første kvadratsetning baklengs: a² + 2ab + b² = (a + b)².';}
+  else if(t===2){cs=[p*p,-2*p*a,a*a];show=`(${lin(p,-a)})<sup>2</sup>`;why='Andre kvadratsetning baklengs: a² − 2ab + b² = (a − b)².';}
+  else {cs=[p*p,0,-a*a];show=`(${lin(p,a)})(${lin(p,-a)})`;why='Tredje kvadratsetning baklengs: a² − b² = (a + b)(a − b).';}
+  return {q:`Faktoriser:<br><b>${poly(cs)}</b>`,type:'expr',form:'factored',orig:fnP(cs),ansFn:fnP(cs),show,
+    hint:'Se etter en kvadratsetning. Er første og siste ledd kvadrater? Passer leddet i midten?',why};
+}
+function gTrinom(){
+  let r1,r2;do{r1=ri(-8,8);r2=ri(-8,8);}while(r1===0||r2===0||r1===r2);
+  const cs=[1,-(r1+r2),r1*r2];
+  return {q:`Faktoriser:<br><b>${poly(cs)}</b>`,type:'expr',form:'factored',orig:fnP(cs),ansFn:fnP(cs),show:`${facX(r1)}${facX(r2)}`,
+    hint:`Finn to tall med produkt ${r1*r2} og sum ${ns(r1+r2)}.`,
+    why:`${ns(r1)} og ${ns(r2)} har produkt ${ns(r1*r2)} og sum ${ns(r1+r2)}. Da er uttrykket (x ${U} ${par(r1)})(x ${U} ${par(r2)}) = ${facX(r1)}${facX(r2)}.`};
+}
+function gForkort(){
+  const t=ri(1,4),a=ri(2,8);let num,den,cs,show,fn;
+  if(t===1){num=poly([1,0,-a*a]);den=`x ${U} ${a}`;show=`x + ${a}`;fn=x=>x+a;}
+  else if(t===2){num=poly([1,2*a,a*a]);den=`x + ${a}`;show=`x + ${a}`;fn=x=>x+a;}
+  else if(t===3){const g=ri(2,5),p=ri(1,4),q=ri(1,6);num=poly([g*p,g*q,0]);den=`${g}x`;show=lin(p,q);fn=x=>p*x+q;}
+  else{let r1,r2;do{r1=ri(-7,7);r2=ri(-7,7);}while(r1===0||r2===0||r1===r2);num=poly([1,-(r1+r2),r1*r2]);den=`x ${r1<0?'+':U} ${Math.abs(r1)}`;show=`x ${r2<0?'+':U} ${Math.abs(r2)}`;fn=x=>x-r2;}
+  const N=parseExpr(num.replace(/<sup>(\d)<\/sup>/g,'^$1')),D=parseExpr(den.replace(/<sup>(\d)<\/sup>/g,'^$1'));
+  return {q:`Forkort brøken så mye som mulig:<br><b>${frac(num,den)}</b>`,type:'expr',form:'any',orig:x=>N.f(x)/D.f(x),ansFn:fn,show,
+    hint:'Faktoriser teller (og nevner) først. Så kan du stryke like faktorer.',
+    why:`Teller faktorisert gir en faktor som er lik nevneren. Etter forkorting står ${show} igjen.`};
+}
+
+/* ---------- Kvadratsetningene ---------- */
+function gKv1(){const p=pick([1,1,2,3]),a=ri(2,9),cs=[p*p,2*p*a,a*a];
+  return {q:`Bruk første kvadratsetning:<br><b>(${lin(p,a)})<sup>2</sup></b>`,type:'expr',form:'expanded',orig:x=>(p*x+a)**2,ansFn:fnP(cs),show:poly(cs),
+    hint:'(a + b)² = a² + 2ab + b²',why:`(${p===1?'':p}x)² = ${poly([p*p,0,0])}, 2·${p===1?'':p}x·${a} = ${2*p*a}x og ${a}² = ${a*a}.`};}
+function gKv2(){const p=pick([1,1,2,3]),a=ri(2,9),cs=[p*p,-2*p*a,a*a];
+  return {q:`Bruk andre kvadratsetning:<br><b>(${lin(p,-a)})<sup>2</sup></b>`,type:'expr',form:'expanded',orig:x=>(p*x-a)**2,ansFn:fnP(cs),show:poly(cs),
+    hint:'(a − b)² = a² − 2ab + b²',why:`(${p===1?'':p}x)² = ${poly([p*p,0,0])}, ${U}2·${p===1?'':p}x·${a} = ${U}${2*p*a}x og ${a}² = ${a*a}.`};}
+function gKv3(){const p=pick([1,1,2,3]),a=ri(2,9),cs=[p*p,0,-a*a];
+  return {q:`Bruk tredje kvadratsetning:<br><b>(${lin(p,a)})(${lin(p,-a)})</b>`,type:'expr',form:'expanded',orig:x=>(p*x+a)*(p*x-a),ansFn:fnP(cs),show:poly(cs),
+    hint:'(a + b)(a − b) = a² − b²',why:`Kvadratet av første ledd minus kvadratet av andre ledd: ${poly([p*p,0,0])} ${U} ${a*a}.`};}
+function gGjenkjenn(){
+  const a=ri(2,8),b=ri(2,8);const t=ri(1,4);let ex,ans,why;
+  if(t===1){ex=`(x + ${a})<sup>2</sup>`;ans=0;why='Et uttrykk i andre potens med pluss i parentesen er første kvadratsetning.';}
+  else if(t===2){ex=`(x ${U} ${a})<sup>2</sup>`;ans=1;why='Andre potens med minus i parentesen er andre kvadratsetning.';}
+  else if(t===3){ex=`(x + ${a})(x ${U} ${a})`;ans=2;why='Samme ledd med pluss i den ene og minus i den andre parentesen er tredje kvadratsetning.';}
+  else{let bb=b;if(bb===a)bb=a+1;ex=`(x + ${a})(x + ${bb})`;ans=3;why='Tallene i parentesene er ulike, og begge har pluss. Da er det ikke en kvadratsetning, og du må multiplisere ut vanlig.';}
+  return {q:`Hvilken kvadratsetning passer til <b>${ex}</b>?`,type:'choice',opts:['Første kvadratsetning','Andre kvadratsetning','Tredje kvadratsetning','Ingen av dem'],ans,
+    hint:'Se på fortegnene i parentesene og på om de to parentesene er like.',why};
+}
+function gFyllk(){
+  const a=ri(2,9),t=ri(1,4);let q,k,why;
+  if(t===1){q=`(x + ${a})<sup>2</sup> = x<sup>2</sup> + kx + ${a*a}`;k=2*a;why=`Midtleddet er 2·${a}·x = ${2*a}x.`;}
+  else if(t===2){q=`(x ${U} ${a})<sup>2</sup> = x<sup>2</sup> ${U} kx + ${a*a}`;k=2*a;why=`Midtleddet er ${U}2·${a}·x, så k = ${2*a}.`;}
+  else if(t===3){q=`x<sup>2</sup> + ${2*a}x + k er et fullstendig kvadrat, (x + ${a})<sup>2</sup>`;k=a*a;why=`Siste ledd er ${a}² = ${a*a}.`;}
+  else{q=`x<sup>2</sup> ${U} ${2*a}x + k = (x ${U} ${a})<sup>2</sup>`;k=a*a;why=`Siste ledd er ${a}² = ${a*a}.`;}
+  return {q:`Finn k:<br><b>${q}</b>`,type:'num',ans:k,hint:'Sammenlikn med kvadratsetningen. Hva er a og b?',why};
+}
+function gHodet(){
+  const base=pick([20,30,50,100]),d=base===20?ri(1,2):ri(1,3);let q,ans,why;
+  const t=ri(1,3);
+  if(t===1){q=`${base+d}<sup>2</sup>`;ans=(base+d)**2;why=`(${base} + ${d})² = ${base*base} + ${2*base*d} + ${d*d} = ${ans}.`;}
+  else if(t===2){q=`${base-d}<sup>2</sup>`;ans=(base-d)**2;why=`(${base} ${U} ${d})² = ${base*base} ${U} ${2*base*d} + ${d*d} = ${ans}.`;}
+  else{q=`${base-d} · ${base+d}`;ans=base*base-d*d;why=`Tredje kvadratsetning: ${base}² ${U} ${d}² = ${base*base} ${U} ${d*d} = ${ans}.`;}
+  return {q:`Regn ut i hodet med en kvadratsetning: <b>${q}</b>`,type:'num',ans,
+    hint:`Skriv tallene som ${base} pluss eller minus ${d}.`,why};
+}
+
+/* ---------- Likninger ---------- */
+function gLin1(){
+  let x,a,b,c,d;do{x=ri(-8,10);a=ri(2,9);c=ri(-4,8);b=ri(-9,9);d=a*x+b-c*x;}while(c===0||a===c||b===0||d===0);
+  return {q:`Løs likningen:<br><b>${poly([a,b])} = ${poly([c,d])}</b>`,type:'num',ans:x,f:t=>a*t+b-(c*t+d),
+    hint:'Samle x-ledd på den ene siden og tall på den andre.',why:`${a}x ${U} ${c<0?'('+ns(c)+')':c}x = ${ns(d)} ${U} ${par(b)}, så ${ns(a-c)}x = ${ns(d-b)} og x = ${ns(x)}.`};
+}
+function gPar(){
+  let x,a,b,c,d,e;do{x=ri(-6,9);a=ri(2,6);b=ri(-5,6);c=ri(2,5);d=ri(-5,6);e=a*(x+b)-c*(x+d);}while(a===c||b===0||d===0);
+  const rhs=`${c}(x ${sgn(d)})${e===0?'':` ${sgn(e)}`}`;
+  return {q:`Løs likningen:<br><b>${a}(x ${sgn(b)}) = ${rhs}</b>`,type:'num',ans:x,f:t=>a*(t+b)-(c*(t+d)+e),
+    hint:'Multipliser ut parentesene først. Samle så x-ledd og tall.',why:`Venstre side: ${poly([a,a*b])}. Høyre side: ${poly([c,c*d+e])}. Dette gir x = ${ns(x)}.`};
+}
+function gBrok(){
+  if(Math.random()<.55){
+    const m=ri(1,8),b=ri(2,6),a=ri(-5,8),x=b*m-a,c=ri(1,6),d=m+c;
+    return {q:`Løs likningen:<br><b>${frac(a===0?'x':`x ${sgn(a)}`,b)} + ${c} = ${d}</b>`,type:'num',ans:x,f:t=>(t+a)/b+c-d,
+      hint:'Ta bort tallet ved siden av brøken først, og gang så med nevneren.',why:`Trekk fra ${c}: (x ${sgn(a)})/${b} = ${m}. Gang med ${b}: x ${sgn(a)} = ${b*m}, så x = ${ns(x)}.`};
+  }
+  let a,b;do{a=ri(2,6);b=ri(2,6);}while(a===b);
+  const l=(a*b)/ (function g(p,q){return q?g(q,p%q):p;})(a,b),x=l*ri(1,3),c=x/a+x/b;
+  return {q:`Løs likningen:<br><b>${frac('x',a)} + ${frac('x',b)} = ${c}</b>`,type:'num',ans:x,f:t=>t/a+t/b-c,
+    hint:`Gang alle ledd med fellesnevneren ${a*b}.`,why:`Gang med ${a*b}: ${b}x + ${a}x = ${a*b*c}. Da er ${a+b}x = ${a*b*c} og x = ${x}.`};
+}
+function gOrd(){
+  const t=ri(1,3);
+  if(t===1){const n=ri(5,40),S=3*n+3;return {q:`Summen av tre påfølgende hele tall er ${S}. Hva er det minste tallet?`,type:'num',ans:n,f:x=>3*x+3-S,
+    hint:'Kall tallene n, n + 1 og n + 2.',why:`n + (n + 1) + (n + 2) = 3n + 3 = ${S}, så n = ${n}.`};}
+  if(t===2){const x=ri(2,15),a=ri(2,5),b=ri(3,9),N=a*x+b;return {q:`Jeg tenker på et tall. Ganger jeg det med ${a} og legger til ${b}, får jeg ${N}. Hvilket tall tenker jeg på?`,type:'num',ans:x,f:t=>a*t+b-N,
+    hint:'Kall tallet x og sett opp en likning.',why:`${a}x + ${b} = ${N} gir ${a}x = ${N-b} og x = ${x}.`};}
+  const w=ri(3,15),d=ri(2,8),P=2*(2*w+d);
+  return {q:`Et rektangel har omkrets ${P} cm. Lengden er ${d} cm større enn bredden. Hva er bredden?`,type:'num',ans:w,f:t=>2*(2*t+d)-P,
+    hint:'Kall bredden x. Da er lengden x + '+d+'. Omkrets er 2 · (lengde + bredde).',why:`2(x + (x + ${d})) = ${P} gir 4x + ${2*d} = ${P}, så x = ${w}.`};
+}
+
+/* ---------- Andregradslikninger ---------- */
+const ansTxt=a=>a.map(dec).join(' og ');
+function gProdNull(){
+  let r1,r2;do{r1=ri(-8,8);r2=Math.random()<.2?r1:ri(-8,8);}while(r1===0&&r2===0);
+  const a=Math.random()<.3?ri(2,4):1;
+  return {q:`Løs likningen:<br><b>${a===1?'':a}${facX(r1)}${facX(r2)} = 0</b>`,type:'two',ans:[r1,r2],f:t=>a*(t-r1)*(t-r2),
+    hint:'Et produkt er null når en av faktorene er null. Sett hver parentes lik null.',why:`x ${U} ${par(r1)} = 0 gir x = ${ns(r1)}, og x ${U} ${par(r2)} = 0 gir x = ${ns(r2)}.`};
+}
+function gRen(){
+  const a=pick([1,2,3,4]),r=ri(2,9),v=ri(1,3);let q;
+  if(v===1)q=`x<sup>2</sup> = ${r*r}`;else if(v===2)q=`x<sup>2</sup> ${U} ${r*r} = 0`;else q=`${a}x<sup>2</sup> ${U} ${a*r*r} = 0`;
+  const aa=v===3?a:1;
+  return {q:`Løs likningen:<br><b>${q}</b>`,type:'two',ans:[-r,r],f:t=>aa*t*t-aa*r*r,
+    hint:'Få x² alene på den ene siden, og ta kvadratroten. Husk både positiv og negativ rot.',why:`x² = ${r*r}, så x = ±√${r*r} = ±${r}.`};
+}
+function gUtenC(){
+  let r,a;do{r=ri(-9,9);a=pick([1,1,2,3]);}while(r===0);
+  const cs=[a,-a*r,0];
+  return {q:`Løs likningen:<br><b>${poly(cs)} = 0</b>`,type:'two',ans:[0,r],f:fnP(cs),
+    hint:'Sett x utenfor en parentes. Da har du et produkt som skal bli null.',why:`${poly(cs)} = ${a===1?'':a}x(${poly([1,-r])}) = 0 gir x = 0 eller x = ${ns(r)}.`};
+}
+function gFaktLik(){
+  let r1,r2;do{r1=ri(-9,9);r2=Math.random()<.15?r1:ri(-9,9);}while(r1===0||r2===0);
+  const cs=[1,-(r1+r2),r1*r2];
+  return {q:`Løs likningen ved å faktorisere:<br><b>${poly(cs)} = 0</b>`,type:'two',ans:[r1,r2],f:fnP(cs),
+    hint:`Finn to tall med produkt ${ns(r1*r2)} og sum ${ns(r1+r2)}.`,why:`${ns(r1)} og ${ns(r2)} har produkt ${ns(r1*r2)} og sum ${ns(r1+r2)}. Likningen blir ${facX(r1)}${facX(r2)} = 0.`};
+}
+function gKvLik(){
+  const a=ri(2,9),s=pick([1,-1]),cs=[1,2*a*s,a*a];
+  return {q:`Løs likningen:<br><b>${poly(cs)} = 0</b> <span class="note">(én løsning, skriv den i begge feltene)</span>`,type:'two',ans:[-s*a,-s*a],f:fnP(cs),
+    hint:'Kjenner du igjen venstre side som en kvadratsetning?',why:`${poly(cs)} = (x ${s>0?'+':U} ${a})² = 0 gir x = ${ns(-s*a)}.`};
+}
+function gOmform(){
+  let r1,r2;do{r1=ri(-8,8);r2=ri(-8,8);}while(r1===0||r2===0||r1+r2===0||r1===r2);
+  const s=r1+r2,p=r1*r2;
+  if(Math.random()<.5)return {q:`Løs likningen:<br><b>x<sup>2</sup> = ${poly([s,-p])}</b>`,type:'two',ans:[r1,r2],f:fnP([1,-s,p]),
+    hint:'Flytt alle ledd over på samme side så du får ... = 0.',why:`Flytt over: ${poly([1,-s,p])} = 0. Faktoriser: ${facX(r1)}${facX(r2)} = 0.`};
+  return {q:`Løs likningen:<br><b>x(x ${sgn(-s)}) = ${ns(-p)}</b>`,type:'two',ans:[r1,r2],f:fnP([1,-s,p]),
+    hint:'Multipliser ut parentesen og flytt alt over på én side.',why:`Utvid: x² ${sgn(-s)}x = ${ns(-p)}. Flytt over: ${poly([1,-s,p])} = 0, som gir x = ${ns(r1)} eller x = ${ns(r2)}.`};
+}
+function gLag(){
+  let r1,r2;do{r1=ri(-7,7);r2=ri(-7,7);}while(r1===0||r2===0||r1===r2||r1+r2===0);
+  const s=r1+r2,p=r1*r2,f=cs=>`${poly(cs)} = 0`;
+  const m=mc(f([1,-s,p]),[f([1,s,p]),f([1,-s,-p]),f([1,s,-p])]);
+  return {q:`Hvilken likning har løsningene x = ${ns(r1)} og x = ${ns(r2)}?`,type:'choice',...m,
+    hint:'Lag faktorene (x − løsning) og multipliser dem ut.',why:`${facX(r1)}${facX(r2)} = ${poly([1,-s,p])}.`};
+}
+
+/* ---------- abc-formelen ---------- */
+function gKoeff(){
+  let a,b1,c1,d1;do{a=ri(1,4);b1=ri(-5,5);c1=ri(-5,5);d1=ri(-8,8);}while(b1===c1||d1===0);
+  const b=b1-c1,c=-d1,askB=Math.random()<.5;
+  return {q:`Likningen <b>${poly([a,b1])} = ${poly([c1,d1])}</b> skrives på formen ax<sup>2</sup> + bx + c = 0. Hva er ${askB?'b':'c'}?`,type:'num',ans:askB?b:c,
+    hint:'Flytt alle ledd over til venstre side og trekk sammen.',why:`Du får ${poly([a,b,c])} = 0, så a = ${a}, b = ${ns(b)} og c = ${ns(c)}.`};
+}
+function gDiskr(){
+  let a,b,c;do{a=ri(-5,5);b=ri(-7,7);c=ri(-6,6);}while(a===0||c===0);
+  return {q:`Regn ut diskriminanten D = b² ${U} 4ac for<br><b>${eq0(a,b,c)}</b>`,type:'num',ans:b*b-4*a*c,
+    hint:'Sett a, b og c inn i formelen. Bruk parenteser rundt negative tall.',why:`D = ${par(b)}² ${U} 4·${par(a)}·${par(c)} = ${b*b} ${U} (${ns(4*a*c)}) = ${ns(b*b-4*a*c)}.`};
+}
+function gAntall(){
+  const t=ri(1,3);let a,b,c;
+  if(t===1){a=ri(1,3);let r;do{r=ri(-6,6);}while(r===0);b=-2*a*r;c=a*r*r;}
+  else if(t===2){do{a=ri(1,3)*pick([1,-1]);b=ri(-6,6);c=Math.ceil(b*b/(4*a))+ (a>0?ri(1,4):-ri(1,4));}while(b*b-4*a*c>=0||c===0);}
+  else{do{a=ri(1,3)*pick([1,-1]);b=ri(-6,6);c=ri(-6,6);}while(c===0||b*b-4*a*c<=0);}
+  const D=b*b-4*a*c;
+  return {q:`Hvor mange løsninger har likningen<br><b>${eq0(a,b,c)}</b>?`,type:'choice',opts:['Ingen løsning','Én løsning','To løsninger'],ans:D<0?0:D===0?1:2,
+    hint:'Regn ut D = b² − 4ac. Negativ D: ingen løsning. D = 0: én. Positiv D: to.',why:`D = ${par(b)}² ${U} 4·${par(a)}·${par(c)} = ${ns(D)}${D<0?', som er negativ':D===0?', så det er én løsning':', som er positiv'}.`};
+}
+function abcWhy(a,b,c){const D=b*b-4*a*c;return `D = ${ns(D)}, og x = ${frac(`${ns(-b)} ± ${isSq(D)?Math.sqrt(D):rt(D)}`,2*a)}.`;}
+function gHele(){
+  let r1,r2,a;do{r1=ri(-7,7);r2=Math.random()<.15?r1:ri(-7,7);a=pick([1,1,2,3]);}while(r1===0&&r2===0);
+  const cs=[a,-a*(r1+r2),a*r1*r2];
+  return {q:`Løs likningen med abc-formelen:<br><b>${poly(cs)} = 0</b>`,type:'two',ans:[r1,r2],f:fnP(cs),
+    hint:'x = (−b ± √(b² − 4ac)) / 2a. Er D = 0, er det bare én løsning, skriv den i begge feltene.',why:abcWhy(...cs)};
+}
+function gDesimal(){
+  let a,b,c,D;do{a=ri(1,3)*pick([1,1,-1]);b=ri(-8,8);c=ri(-8,8);D=b*b-4*a*c;}while(c===0||D<=0||isSq(D));
+  const cs=[a,b,c],r=[(-b-Math.sqrt(D))/(2*a),(-b+Math.sqrt(D))/(2*a)];
+  return {q:`Løs likningen med abc-formelen. Svar med to desimaler.<br><b>${poly(cs)} = 0</b>`,type:'two',ans:r,tol:.0101,f:fnP(cs),
+    hint:'Bruk kalkulator for kvadratroten. Regn ut begge løsningene, med + og med −.',why:`${abcWhy(...cs)} Det gir x ≈ ${dec(+Math.min(...r).toFixed(2))} og x ≈ ${dec(+Math.max(...r).toFixed(2))}.`};
+}
+function gBall(){
+  const p=ri(1,3),q=ri(p+1,6),v=5*(q-p),h0=5*p*q;
+  return {q:`En ball kastes oppover. Høyden over bakken er h(t) = ${U}5t<sup>2</sup> + ${v}t + ${h0} meter, der t er tiden i sekunder. Når treffer ballen bakken? <span class="note">(svar i sekunder)</span>`,type:'num',ans:q,f:t=>-5*t*t+v*t+h0,
+    hint:'Ballen er på bakken når h(t) = 0. Løs likningen, og velg den løsningen som gir mening.',
+    why:`Likningen ${U}5t² + ${v}t + ${h0} = 0 har løsningene t = ${ns(-p)} og t = ${q}. Tiden kan ikke være negativ, så ballen treffer bakken etter ${q} sekunder.`};
+}
+
+const TOPICS=[
+ {id:'ident',name:'Identiteter',subs:[
+   {id:'a',name:'Multipliser ut',gen:gMult},{id:'b',name:'Identitet eller ikke?',gen:gErIdentitet},{id:'c',name:'Finn k',gen:gFinnK}]},
+ {id:'fakt',name:'Faktorisering',subs:[
+   {id:'a',name:'Felles faktor',gen:gFelles},{id:'b',name:'Kvadratsetninger baklengs',gen:gKvBak},{id:'c',name:'Andregradsuttrykk',gen:gTrinom},{id:'d',name:'Forkort brøk',gen:gForkort}]},
+ {id:'kvs',name:'Kvadratsetningene',subs:[
+   {id:'a',name:'Første',gen:gKv1},{id:'b',name:'Andre',gen:gKv2},{id:'c',name:'Tredje',gen:gKv3},
+   {id:'d',name:'Gjenkjenn',gen:gGjenkjenn},{id:'e',name:'Fyll inn',gen:gFyllk},{id:'f',name:'Regn i hodet',gen:gHodet}]},
+ {id:'lik',name:'Likninger',subs:[
+   {id:'a',name:'Førstegrad',gen:gLin1},{id:'b',name:'Med parentes',gen:gPar},{id:'c',name:'Brøklikninger',gen:gBrok},{id:'d',name:'Tekstoppgaver',gen:gOrd}]},
+ {id:'andre',name:'Andregradslikninger',subs:[
+   {id:'a',name:'Produkt lik null',gen:gProdNull},{id:'b',name:'Rene likninger',gen:gRen},{id:'c',name:'Uten konstantledd',gen:gUtenC},
+   {id:'d',name:'Faktorisering',gen:gFaktLik},{id:'e',name:'Kvadratsetning',gen:gKvLik},{id:'f',name:'Omform først',gen:gOmform},{id:'g',name:'Lag likning',gen:gLag}]},
+ {id:'abc',name:'abc-formelen',subs:[
+   {id:'a',name:'Finn a, b og c',gen:gKoeff},{id:'b',name:'Diskriminanten',gen:gDiskr},{id:'c',name:'Antall løsninger',gen:gAntall},
+   {id:'d',name:'Heltallsløsninger',gen:gHele},{id:'e',name:'Desimalløsninger',gen:gDesimal},{id:'f',name:'Tekstoppgave',gen:gBall}]},
+];
+if(typeof globalThis!=='undefined'){globalThis.__TOPICS=TOPICS;globalThis.__sameFn=sameFn;}
+
+/* ---------- Appen ---------- */
+if(typeof document!=='undefined'){
+const $=id=>document.getElementById(id);
+const KEY='algebra-likninger-1t';
+let stats={};try{stats=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}};
+const S={tab:'alle',sub:'alle',q:null,done:false,hint:false,nudge:'',c:0,t:0,streak:0};
+const TABS=[{id:'alle',name:'Blandet'},...TOPICS,{id:'utforsk',name:'Utforsk'}];
+
+function parseNum(s){
+  s=String(s).trim().replace(/\s/g,'').replace(/[−–]/g,'-').replace(',','.');
+  if(/^-?\d+(\.\d+)?\/-?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/').map(Number);return b===0?NaN:a/b;}
+  return /^-?\d+(\.\d+)?$/.test(s)?Number(s):NaN;
+}
+function poolFor(){
+  let subs=[];
+  if(S.tab==='alle')TOPICS.forEach(t=>t.subs.forEach(s=>subs.push(s)));
+  else{const t=TOPICS.find(t=>t.id===S.tab);subs=S.sub==='alle'?t.subs:t.subs.filter(s=>s.id===S.sub);}
+  return subs;
+}
+function newQ(){const s=pick(poolFor());S.q=s.gen();S.q.subName=s.name;S.done=false;S.hint=false;S.nudge='';renderStage();}
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(t=>{const st=stats[t.id];
+    return `<button class="tab" role="tab" data-tab="${t.id}" aria-selected="${t.id===S.tab}">${t.name}${st&&st.t?`<small>${st.c}/${st.t}</small>`:''}</button>`}).join('');
+}
+function renderSubs(){
+  const el=$('subs');
+  if(S.tab==='alle'||S.tab==='utforsk'){el.innerHTML='';return;}
+  const t=TOPICS.find(t=>t.id===S.tab);
+  el.innerHTML=`<span class="lbl">Underoppgaver</span><button class="chip" data-sub="alle" aria-pressed="${S.sub==='alle'}">Alle</button>`+
+    t.subs.map(s=>`<button class="chip" data-sub="${s.id}" aria-pressed="${S.sub===s.id}">${s.name}</button>`).join('');
+}
+function renderScore(){$('sc').textContent=`${S.c}/${S.t}`;$('st').textContent=S.streak;}
+function showAns(q){
+  if(q.type==='num')return q.show||dec(q.ans);
+  if(q.type==='two')return 'x = '+q.ans.map(dec).join(' og x = ');
+  if(q.type==='expr')return q.show;
+  return q.opts[q.ans];
+}
+const snap=()=>['ans','a1','a2'].map(i=>$(i)?$(i).value:null);
+const restore=v=>['ans','a1','a2'].forEach((i,k)=>{if(v[k]!==null&&$(i))$(i).value=v[k];});
+function renderStage(){
+  if(S.tab==='utforsk'){renderExplore();return;}
+  const q=S.q,dis=S.done?'disabled':'';
+  let h=`<section class="card"><div class="kicker">${q.subName}</div><p class="q">${q.q}</p>`;
+  if(q.type==='num'){
+    h+=`<div class="row"><input id="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Svar" placeholder="Svar" ${dis} value="${S.done?(q.given||''):''}"><button class="btn" id="check" ${dis}>Sjekk</button></div>`;
+  } else if(q.type==='two'){
+    const g=q.given||['',''];
+    h+=`<div class="row"><label>x<sub>1</sub> = <input id="a1" class="sm" type="text" autocomplete="off" spellcheck="false" ${dis} value="${S.done?g[0]:''}"></label>
+    <label>x<sub>2</sub> = <input id="a2" class="sm" type="text" autocomplete="off" spellcheck="false" ${dis} value="${S.done?g[1]:''}"></label><button class="btn" id="check" ${dis}>Sjekk</button></div>
+    <p class="note" style="margin:0">Rekkefølgen spiller ingen rolle.</p>`;
+  } else if(q.type==='expr'){
+    h+=`<div class="row"><input id="ans" class="wide" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Svar" placeholder="Skriv svaret, f.eks. x^2 + 6x + 9" ${dis} value="${S.done?(q.given||''):''}"><button class="btn" id="check" ${dis}>Sjekk</button></div>
+    ${S.done?'':`<div class="keys" aria-label="Hurtigtaster">${[['x','x'],['x²','^2'],['(','('],[')',')'],['+','+'],['−','-'],['/','/']].map(([l,v])=>`<button class="key" data-ins="${v}" type="button">${l}</button>`).join('')}</div>
+    <p class="note" style="margin:0">Skriv x^2 for x². Gangetegn kan utelates: 3x og (x+1)(x−1) går fint.${q.form==='factored'?' Svaret skal være et produkt, med parentes.':q.form==='expanded'?' Svaret skal skrives uten parentes.':''}</p>`}`;
+  } else {
+    h+=`<div class="opts">${q.opts.map((o,i)=>{let c='opt';if(S.done){if(i===q.ans)c+=' right';else if(i===q.pick)c+=' wrong';}
+      return `<button class="${c}" data-opt="${i}" ${dis}>${o}</button>`}).join('')}</div>`;
+  }
+  if(S.nudge&&!S.done)h+=`<div class="hint">${S.nudge}</div>`;
+  if(S.hint&&!S.done)h+=`<div class="hint">${q.hint}</div>`;
+  if(S.done){
+    const ok=q.ok;
+    h+=`<div class="fb ${ok?'ok':'no'}" role="status"><strong>${ok?pick(['Riktig!','Det stemmer!','Bra jobbet!']):'Ikke helt.'}</strong>${ok?'':`Riktig svar: <b>${showAns(q)}</b>. `}${q.why}</div>`;
+  }
+  h+=`<div class="row">${S.done?'<button class="btn" id="next">Neste oppgave</button>':`<button class="btn ghost" id="hintb">Hint</button><button class="btn ghost" id="skip">Hopp over</button><button class="btn ghost" id="give">Vis svar</button>`}</div></section>`;
+  $('stage').innerHTML=h;
+  const a=$('ans')||$('a1');if(a&&!S.done)a.focus();
+  if(S.done){const n=$('next');if(n)n.focus();}
+}
+function record(ok){
+  const st=stats[S.tab]||(stats[S.tab]={c:0,t:0});st.t++;if(ok)st.c++;save();
+  S.t++;if(ok){S.c++;S.streak++;}else S.streak=0;
+  S.q.ok=ok;S.done=true;S.nudge='';renderScore();renderTabs();renderStage();
+}
+function check(){
+  const q=S.q;
+  if(q.type==='num'){
+    const inp=$('ans');if(!inp.value.trim()){inp.focus();return;}
+    q.given=inp.value;const v=parseNum(inp.value);
+    record(!isNaN(v)&&Math.abs(v-q.ans)<=1e-6*Math.max(1,Math.abs(q.ans)));
+  } else if(q.type==='two'){
+    const v=[parseNum($('a1').value),parseNum($('a2').value)];
+    if(v.some(isNaN)){const sv=snap();S.nudge='Skriv inn begge løsningene som tall. Har likningen bare én løsning, skriver du den i begge feltene.';renderStage();restore(sv);(v[0]!==v[0]?$('a1'):$('a2')).focus();return;}
+    q.given=[$('a1').value,$('a2').value];
+    const u=v.slice().sort((x,y)=>x-y),w=q.ans.slice().sort((x,y)=>x-y),tol=q.tol||1e-6;
+    record(u.every((x,i)=>Math.abs(x-w[i])<=tol));
+  } else if(q.type==='expr'){
+    const inp=$('ans');if(!inp.value.trim()){inp.focus();return;}
+    const p=parseExpr(inp.value);
+    if(!p){const sv=snap();S.nudge='Jeg forstår ikke uttrykket. Bruk x, tall, + − * / ^ og parenteser, for eksempel 2x^2 − 3x + 1.';renderStage();restore(sv);$('ans').focus();return;}
+    const same=sameFn(p.f,q.ansFn);
+    if(same&&q.form==='expanded'&&p.s.includes('(')){const sv=snap();S.nudge='Uttrykket har riktig verdi, men det skal skrives uten parentes. Multipliser ut og trekk sammen.';renderStage();restore(sv);$('ans').focus();return;}
+    if(same&&q.form==='factored'&&!p.s.includes('(')){const sv=snap();S.nudge='Uttrykket har riktig verdi, men det skal skrives som et produkt med parentes.';renderStage();restore(sv);$('ans').focus();return;}
+    q.given=inp.value;record(same);
+  }
+}
+
+/* Utforsk */
+function plot(a,b,c){
+  const W=360,H=300,X=10,Y=10,sx=x=>W/2+x*W/(2*X),sy=y=>H/2-y*H/(2*Y);
+  let g='';for(let i=-X;i<=X;i++){g+=`<line x1="${sx(i)}" y1="0" x2="${sx(i)}" y2="${H}" class="gl"/>`;}
+  for(let j=-Y;j<=Y;j++){g+=`<line x1="0" y1="${sy(j)}" x2="${W}" y2="${sy(j)}" class="gl"/>`;}
+  g+=`<line x1="0" y1="${sy(0)}" x2="${W}" y2="${sy(0)}" class="ax"/><line x1="${sx(0)}" y1="0" x2="${sx(0)}" y2="${H}" class="ax"/>`;
+  let pts='';for(let x=-X;x<=X+1e-9;x+=.1){const y=a*x*x+b*x+c;pts+=`${sx(x).toFixed(1)},${sy(Math.max(-30,Math.min(30,y))).toFixed(1)} `;}
+  g+=`<polyline points="${pts}" class="cv"/>`;
+  const D=b*b-4*a*c;let m='';
+  if(D>=0){[(-b-Math.sqrt(D))/(2*a),(-b+Math.sqrt(D))/(2*a)].forEach(r=>{if(Math.abs(r)<=X)m+=`<circle cx="${sx(r)}" cy="${sy(0)}" r="5" class="rp"/>`;});}
+  const vx=-b/(2*a),vy=a*vx*vx+b*vx+c;if(Math.abs(vx)<=X&&Math.abs(vy)<=Y)m+=`<circle cx="${sx(vx)}" cy="${sy(vy)}" r="4" class="vp"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:420px" role="img" aria-label="Grafen til andregradsfunksjonen">${g}${m}</svg>`;
+}
+function areal(a,b){
+  const S=300,u=S/(a+b),A=a*u,B=b*u;
+  const r=(x,y,w,h,cls,t)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" class="${cls}"/><text x="${x+w/2}" y="${y+h/2}" class="tx" text-anchor="middle" dominant-baseline="middle">${t}</text>`;
+  return `<svg viewBox="-2 -2 ${S+4} ${S+4}" width="100%" style="max-width:320px" role="img" aria-label="Kvadrat delt i fire deler">${r(0,0,A,A,'r1','a²')}${r(A,0,B,A,'r2','ab')}${r(0,A,A,B,'r2','ab')}${r(A,A,B,B,'r3','b²')}</svg>`;
+}
+function renderExplore(){
+  $('stage').innerHTML=`<div class="tools">
+   <section class="card tool"><h2>Andregradsfunksjonen</h2>
+    <p class="note" style="margin:0">Grafen til ax² + bx + c. Skjæring med x-aksen er løsningene til likningen ax² + bx + c = 0.</p>
+    <div class="row"><label>a <input id="pa" class="sm" type="number" step="1" value="1"></label><label>b <input id="pb" class="sm" type="number" step="1" value="-2"></label><label>c <input id="pc" class="sm" type="number" step="1" value="-3"></label></div>
+    <div id="pinfo"></div><div id="pplot"></div>
+    <p class="note">Tenk selv: Hva skjer med grafen når a skifter fortegn? Finn en c som gir nøyaktig én løsning når a = 1 og b = 4. Hva er D da?</p></section>
+   <section class="card tool"><h2>Første kvadratsetning som areal</h2>
+    <p class="note" style="margin:0">Et kvadrat med side a + b har arealet (a + b)². Det er satt sammen av fire deler.</p>
+    <div class="row"><label>a <input id="ka" class="sm" type="number" min="1" max="9" value="3"></label><label>b <input id="kb" class="sm" type="number" min="1" max="9" value="2"></label></div>
+    <div id="kplot"></div><div id="kinfo"></div>
+    <p class="note">Tenk selv: Hvilken del av figuren er leddet 2ab? Hva skjer hvis du velger b = 0?</p></section></div>`;
+  const pl=()=>{
+    const a=+$('pa').value,b=+$('pb').value,c=+$('pc').value;
+    if(!a){$('pinfo').innerHTML='a kan ikke være 0. Da er det ikke en andregradslikning.';$('pplot').innerHTML='';return;}
+    const D=b*b-4*a*c;let t=`D = ${par(b)}² ${U} 4·${par(a)}·${par(c)} = <b>${ns(D)}</b>. `;
+    if(D<0)t+='Ingen løsning. Grafen treffer ikke x-aksen.';
+    else if(D===0)t+=`Én løsning: x = <b>${dec(-b/(2*a))}</b>.`;
+    else t+=`To løsninger: x = <b>${dec((-b-Math.sqrt(D))/(2*a))}</b> og x = <b>${dec((-b+Math.sqrt(D))/(2*a))}</b>.`;
+    $('pinfo').innerHTML=t;$('pplot').innerHTML=plot(a,b,c);
+  };
+  const kv=()=>{
+    const a=Math.max(1,Math.min(9,+$('ka').value||1)),b=Math.max(1,Math.min(9,+$('kb').value||1));
+    $('kplot').innerHTML=areal(a,b);
+    $('kinfo').innerHTML=`(${a} + ${b})² = ${(a+b)**2}<br>${a}² + 2·${a}·${b} + ${b}² = ${a*a} + ${2*a*b} + ${b*b} = ${a*a+2*a*b+b*b}`;
+  };
+  ['pa','pb','pc'].forEach(i=>$(i).addEventListener('input',pl));['ka','kb'].forEach(i=>$(i).addEventListener('input',kv));
+  pl();kv();
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.tab){S.tab=t.dataset.tab;S.sub='alle';renderTabs();renderSubs();if(S.tab==='utforsk')renderExplore();else newQ();return;}
+  if(t.dataset.sub){S.sub=t.dataset.sub;renderSubs();newQ();return;}
+  if(t.dataset.opt!==undefined&&!S.done){S.q.pick=+t.dataset.opt;record(S.q.pick===S.q.ans);return;}
+  if(t.dataset.ins!==undefined){const i=$('ans');if(i){const s=i.selectionStart??i.value.length,en=i.selectionEnd??s;i.value=i.value.slice(0,s)+t.dataset.ins+i.value.slice(en);i.focus();const p=s+t.dataset.ins.length;i.setSelectionRange(p,p);}return;}
+  if(t.id==='check')check();
+  else if(t.id==='hintb'){const sv=snap();S.hint=true;renderStage();restore(sv);}
+  else if(t.id==='skip')newQ();
+  else if(t.id==='give'){S.q.given=S.q.type==='two'?['','']:'';record(false);}
+  else if(t.id==='next')newQ();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target&&(e.target.id==='ans'||e.target.id==='a1'||e.target.id==='a2'))check();
+});
+renderTabs();renderSubs();renderScore();newQ();
+}
+</script>
+</body>
+</html>

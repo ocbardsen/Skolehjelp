@@ -6,7 +6,8 @@ Interaktive øvelser til skolearbeid. Nettsiden er vanlig HTML, CSS og JavaScrip
 - `modalverber.html`: tyske modalverb i presens (A1–A2), 30 oppgaver
 - `modalverber-fortid.html`: modalverb i fortid (B1), 30 oppgaver
 - `kasus-verb-vg1.html` og `kasus-verb-vg2.html`: kasus og verbbøyning for vg1 og vg2, 30 oppgaver hver
-- `talltrener-1t.html`: matematikk 1T, repetisjon av tall og tallmønstre med tilfeldige oppgaver
+- `talltrener-1t.html`: matematikk 1T, kapittel 1: tall og tallmønstre, med tilfeldige oppgaver
+- `algebra-likninger-1t.html`: matematikk 1T, kapittel 2: identiteter, faktorisering, kvadratsetninger, likninger, andregradslikninger og abc-formelen
 - `css/style.css`: felles stil
 - `js/quiz.js`: felles logikk for øvelsene
 - `js/modalverber.js`, `js/fortid.js`, `js/vg1.js` og `js/vg2.js`: oppgavene

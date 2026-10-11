@@ -38,9 +38,18 @@ legend{font-weight:700;padding:0;margin-bottom:8px}
 
 /* Quiz */
 .qhead{display:flex;align-items:center;gap:14px}
-.progress{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
-.progress span{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .25s}
-#prog-txt{font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);min-width:4.2em;text-align:right}
+.tally{display:flex;gap:8px;margin-left:auto}
+.tally>span{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-variant-numeric:tabular-nums;border:1.5px solid;border-radius:99px;padding:2px 12px;line-height:1.5;transition:transform .2s}
+.tally b{font-weight:800}
+.t-ok{color:var(--ok);background:var(--ok-soft);border-color:var(--ok)}
+.t-no{color:var(--bad);background:var(--bad-soft);border-color:var(--bad)}
+.tally .pop{transform:scale(1.14)}
+.segs{display:flex;gap:3px}
+.segs i{flex:1;height:8px;border-radius:2px;background:var(--line);transition:background .2s}
+.segs i.ok{background:var(--ok)}
+.segs i.no{background:var(--bad)}
+.segs i.cur{background:var(--muted)}
+#prog-txt{font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;white-space:nowrap}
 .qtype{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:99px;margin-bottom:10px}
 #q-prompt{font-size:1.35rem;font-weight:800;margin-bottom:12px}
 #q-prompt b{background:linear-gradient(transparent 60%,var(--mk) 60%);padding:0 .1em}
@@ -200,9 +209,13 @@ details.ref[open] summary{margin-bottom:12px}
 <section id="v-quiz" hidden style="display:grid;gap:14px">
   <div class="qhead">
     <button class="link" id="btn-quit" type="button">← Avslutt</button>
-    <div class="progress" aria-hidden="true"><span id="prog-bar"></span></div>
+    <div class="tally" role="group" aria-label="Poeng">
+      <span class="t-ok" id="t-ok" aria-label="Riktige"><b aria-hidden="true">✓</b> <span id="n-ok">0</span></span>
+      <span class="t-no" id="t-no" aria-label="Gale"><b aria-hidden="true">✗</b> <span id="n-no">0</span></span>
+    </div>
     <span id="prog-txt">1 / 15</span>
   </div>
+  <div class="segs" id="segs" aria-hidden="true"></div>
   <div class="panel">
     <span class="qtype" id="q-type"></span>
     <h2 id="q-prompt"></h2>
@@ -560,11 +573,26 @@ function stageNotes(q,mode,sel,res){
   return staffSVG(q.clef,no,{});
 }
 
+/* Teller øverst: riktige (grønt), gale (rødt) og ett felt per oppgave i fremdriftslinjen */
+function updateTally(pop){
+  var n=S.qs.length, no=S.log.length-S.score, i, h='';
+  $('#n-ok').textContent=S.score; $('#n-no').textContent=no;
+  $('#t-ok').setAttribute('aria-label','Riktige: '+S.score); $('#t-no').setAttribute('aria-label','Gale: '+no);
+  $('#prog-txt').textContent=(S.i+1)+' / '+n;
+  for(i=0;i<n;i++){
+    var r=S.log[i];
+    h+='<i class="'+(r?(r.ok?'ok':'no'):(i===S.i?'cur':''))+'"></i>';
+  }
+  $('#segs').innerHTML=h;
+  if(pop){
+    var el=$(S.log[S.log.length-1].ok?'#t-ok':'#t-no'); el.classList.add('pop');
+    setTimeout(function(){ el.classList.remove('pop'); },220);
+  }
+}
 function renderQuestion(){
   var q=S.qs[S.i];
   S.checked=false; S.pick=null; S.picker=null; S.ans={l:null,acc:0,o:null,viaB:false};
-  $('#prog-txt').textContent=(S.i+1)+' / '+S.qs.length;
-  $('#prog-bar').style.width=(S.i/S.qs.length*100)+'%';
+  updateTally(false);
   var fb=$('#feedback'); fb.hidden=true; fb.innerHTML=''; fb.className='feedback';
   var main=$('#btn-main'); main.textContent='Sjekk svar'; main.disabled=true;
   $('#q-type').textContent=TYPE_LABEL[q.type];
@@ -700,6 +728,7 @@ function check(){
     S.log.push({q:q,ok:ok,kind:res.kind,clef:cl.id,userTxt:nm(sel,q.acc)});
   }
   if(ok) S.score++;
+  updateTally(true);
   fb.className='feedback '+(ok?'ok':'bad'); fb.innerHTML='<div class="t">'+title+'</div>'+body; fb.hidden=false;
   var main=$('#btn-main'); main.disabled=false;
   main.textContent=(S.i===S.qs.length-1)?'Se resultat':'Neste →';

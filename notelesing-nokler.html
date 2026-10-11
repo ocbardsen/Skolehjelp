@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notelesing for cello – Skolehjelp</title>
+<meta name="description" content="Interaktiv øvelse i notenavn og oktaver i F-nøkkel, C-nøkkel og G-nøkkel, laget for cellister.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<!--
+  Nøkkel- og fortegnsformene (G-, F- og C-nøkkel, ♯ og ♭) er hentet fra fonten
+  FreeSerif (GNU FreeFont, GPLv3 med font-unntak) og gjort om til SVG-baner.
+-->
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Øvelsesspesifikk stil. Farger og grunnstil kommer fra css/style.css. */
+:root{
+  --ink:var(--fg); --ok:var(--good); --ok-soft:var(--good-bg); --bad-soft:var(--bad-bg);
+  --staff:var(--fg); --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --mk:color-mix(in srgb,var(--mark) 60%,transparent);
+}
+h3{font-family:var(--f-display);font-size:1.05rem;font-weight:800;line-height:1.15;margin:0}
+fieldset{border:0;margin:0 0 18px;padding:0;min-width:0}
+legend{font-weight:700;padding:0;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;display:inline-flex}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.chip span{display:inline-block;padding:8px 15px;border:1.5px solid var(--line);border-radius:99px;background:var(--bg);font-weight:600;line-height:1.2}
+.chip input:checked + span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}
+.chip input:disabled + span{opacity:.4}
+.chip input:disabled{cursor:not-allowed}
+.note-small{font-size:.9rem;color:var(--muted);margin:8px 0 0}
+.warn{color:var(--bad);font-weight:600;margin:12px 0 0}
+.link{font:inherit;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 0;text-decoration:underline}
+.link:hover{color:var(--fg)}
+.link:focus-visible,.key:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* Quiz */
+.qhead{display:flex;align-items:center;gap:14px}
+.progress{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .25s}
+#prog-txt{font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);min-width:4.2em;text-align:right}
+.qtype{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:99px;margin-bottom:10px}
+#q-prompt{font-size:1.35rem;font-weight:800;margin-bottom:12px}
+#q-prompt b{background:linear-gradient(transparent 60%,var(--mk) 60%);padding:0 .1em}
+.stage{display:grid;gap:4px;justify-items:center;margin:4px 0 8px}
+.stage svg{width:100%;max-width:600px;height:auto;display:block}
+.stage svg.small{max-width:440px}
+.cap{font-size:.85rem;font-weight:700;color:var(--muted);justify-self:start;margin:6px 0 0 4px}
+.hint{font-size:.92rem;color:var(--muted);margin:0 0 14px}
+.keyrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.keylbl{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px}
+.key{font:inherit;font-weight:700;min-width:46px;height:46px;padding:0 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.key small{font-weight:600;font-size:.7rem;color:var(--muted)}
+.key:hover:not(:disabled){border-color:var(--accent)}
+.key.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.key.on small{color:inherit;opacity:.85}
+.key:disabled{cursor:default;opacity:.65}
+.key.oct{padding:0 14px}
+.yours{margin:6px 0 4px;min-height:1.6em;font-weight:600}
+.yours b{font-size:1.2rem}
+.actions{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap}
+.feedback{margin-top:16px;border-radius:8px;padding:12px 14px;border-left:5px solid}
+.feedback.ok{background:var(--ok-soft);border-color:var(--ok)}
+.feedback.bad{background:var(--bad-soft);border-color:var(--bad)}
+.feedback .t{font-family:var(--f-display);font-weight:800;font-size:1.15rem;margin-bottom:4px}
+.feedback.ok .t{color:var(--ok)}
+.feedback.bad .t{color:var(--bad)}
+.feedback p{margin:6px 0 0}
+.feedback .why{font-size:.95rem}
+mark.om{background:var(--mark);color:var(--mark-ink);border-radius:4px;padding:0 3px;font-weight:700}
+
+/* Notesystem */
+.staff .sl{stroke:var(--staff);stroke-width:.085}
+.staff .barline{stroke:var(--staff);stroke-width:.13}
+.staff .clef{fill:var(--staff)}
+.staff .n{color:var(--staff)}
+.staff .n .head,.staff .n .acc{fill:currentColor}
+.staff .n .stem,.staff .n .ledger{stroke:currentColor;stroke-width:.1;stroke-linecap:butt}
+.staff .n-ok{color:var(--ok)}
+.staff .n-bad{color:var(--bad)}
+.staff .n-sel{color:var(--accent)}
+.staff .n-ghost{color:var(--accent);opacity:.4}
+.staff .n-given{color:var(--staff)}
+.staff .hit{cursor:pointer}
+.staff.locked .hit{cursor:default}
+.staff.interactive{touch-action:manipulation}
+.staff.interactive:focus{outline:none}
+.staff.interactive:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:8px}
+.staff .zone{fill:var(--accent-soft);opacity:0}
+.staff.interactive:hover .zone{opacity:.45}
+
+/* Referanse */
+details.ref summary{cursor:pointer;font-weight:700}
+details.ref[open] summary{margin-bottom:12px}
+.ref table{min-width:0;font-size:.95rem;margin:8px 0 14px}
+.ref th,.ref td{white-space:normal}
+.ref .strings{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.ref .strings span{border:1.5px solid var(--line);border-radius:8px;padding:5px 12px;font-weight:700;background:var(--bg)}
+.mini{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px}
+.mini figure{margin:0;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--bg)}
+.mini figcaption{font-size:.82rem;color:var(--muted);font-weight:600}
+.mini svg{width:100%;height:auto;display:block}
+@media (min-width:640px){.mini{grid-template-columns:repeat(4,1fr)}}
+
+/* Resultat */
+.score{font-family:var(--f-display);font-size:3rem;font-weight:800;line-height:1}
+.stats{display:grid;gap:8px;margin:14px 0}
+.stat{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.stat b{font-variant-numeric:tabular-nums}
+.stat.hot{border-color:var(--bad);background:var(--bad-soft)}
+.bars{display:grid;gap:8px;margin:10px 0 4px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;font-size:.95rem}
+.bar-row .tr{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar-row .tr i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.misses{display:grid;gap:12px;margin-top:10px}
+.miss-item{display:grid;grid-template-columns:minmax(150px,230px) 1fr;gap:14px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--bg)}
+.miss-item svg{width:100%;height:auto;display:block}
+.miss-item p{margin:0;font-size:.95rem}
+@media (max-width:520px){.miss-item{grid-template-columns:1fr}.bar-row{grid-template-columns:110px 1fr 40px}}
+</style>
+</head>
+<body>
+<header class="site"><a href="index.html">Skolehjelp</a><a class="back" href="index.html">← Alle øvelser</a></header>
+<main class="wrap">
+
+<!-- ============ START ============ -->
+<section id="v-start" style="display:grid;gap:18px">
+  <div style="display:grid;gap:10px">
+    <span class="lbl">Musikk · Cello</span>
+    <h1>Notelesing <span class="mk">for cello</span></h1>
+    <p class="muted">Øv på å lese tonene i F-nøkkel, C-nøkkel og G-nøkkel, med hovedvekt på hvilken oktav tonen står i. Velg det du vil øve på, og start.</p>
+  </div>
+
+  <div class="panel">
+    <fieldset>
+      <legend>Nøkler</legend>
+      <div class="chips" id="set-clefs">
+        <label class="chip"><input type="checkbox" value="F"><span>F-nøkkel</span></label>
+        <label class="chip"><input type="checkbox" value="T"><span>C-nøkkel (tenor)</span></label>
+        <label class="chip"><input type="checkbox" value="G"><span>G-nøkkel</span></label>
+        <label class="chip"><input type="checkbox" value="A"><span>C-nøkkel (alt)</span></label>
+      </div>
+      <p class="note-small">Cellister bruker F-, tenor- og G-nøkkel. Altnøkkelen (bratsj) er tatt med som ekstra.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Oppgavetyper</legend>
+      <div class="chips" id="set-types">
+        <label class="chip"><input type="checkbox" value="name"><span>Navn tonen</span></label>
+        <label class="chip"><input type="checkbox" value="place"><span>Plasser tonen</span></label>
+        <label class="chip"><input type="checkbox" value="transfer"><span>Samme tone i ny nøkkel</span></label>
+        <label class="chip"><input type="checkbox" value="octave"><span>Oktavhopp</span></label>
+      </div>
+      <p class="note-small" id="types-note">Navn: se tonen og svar med navn og oktav. Plasser: få navnet og sett tonen i notesystemet. Ny nøkkel: skriv tonen du ser i en annen nøkkel. Oktavhopp: finn samme tone en eller to oktaver opp eller ned.</p>
+      <p class="note-small" id="transfer-warn" hidden><b>Velg minst to nøkler</b> for å få «Samme tone i ny nøkkel».</p>
+    </fieldset>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0 24px">
+      <fieldset>
+        <legend>Omfang</legend>
+        <div class="chips" id="set-range">
+          <label class="chip"><input type="radio" name="range" value="near"><span>Nær notelinjene</span></label>
+          <label class="chip"><input type="radio" name="range" value="full"><span>Hele celloregisteret</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Fortegn</legend>
+        <div class="chips" id="set-acc">
+          <label class="chip"><input type="radio" name="acc" value="off"><span>Uten</span></label>
+          <label class="chip"><input type="radio" name="acc" value="on"><span>Med ♯ og ♭</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Navnsetting</legend>
+        <div class="chips" id="set-sys">
+          <label class="chip"><input type="radio" name="sys" value="no"><span>Norsk (H, stor/liten, c¹)</span></label>
+          <label class="chip"><input type="radio" name="sys" value="int"><span>Tall (B, C2, C3, C4)</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Antall oppgaver</legend>
+        <div class="chips" id="set-n">
+          <label class="chip"><input type="radio" name="n" value="10"><span>10</span></label>
+          <label class="chip"><input type="radio" name="n" value="15"><span>15</span></label>
+          <label class="chip"><input type="radio" name="n" value="20"><span>20</span></label>
+        </div>
+      </fieldset>
+    </div>
+
+    <button class="btn" id="btn-start" type="button">Start øvelsen</button>
+    <p class="warn" id="start-msg" hidden></p>
+  </div>
+
+  <details class="panel ref" id="ref-start"><summary>Oktavkart og hjelp (se før du begynner)</summary><div class="ref-body"></div></details>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="v-quiz" hidden style="display:grid;gap:14px">
+  <div class="qhead">
+    <button class="link" id="btn-quit" type="button">← Avslutt</button>
+    <div class="progress" aria-hidden="true"><span id="prog-bar"></span></div>
+    <span id="prog-txt">1 / 15</span>
+  </div>
+  <div class="panel">
+    <span class="qtype" id="q-type"></span>
+    <h2 id="q-prompt"></h2>
+    <div class="stage" id="stage"></div>
+    <p class="hint" id="q-hint"></p>
+    <div id="answer"></div>
+    <div class="feedback" id="feedback" hidden aria-live="polite"></div>
+    <div class="actions"><button class="btn" id="btn-main" type="button" disabled>Sjekk svar</button></div>
+  </div>
+  <details class="panel ref" id="ref-quiz"><summary>Oktavkart og hjelp</summary><div class="ref-body"></div></details>
+</section>
+
+<!-- ============ RESULTAT ============ -->
+<section id="v-result" hidden style="display:grid;gap:18px">
+  <div class="panel" id="result-main"></div>
+</section>
+
+</main>
+<footer>Tips: Oktaven skifter mellom H (B) og C, ikke mellom G og A.</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= Nøkkel- og fortegnsformer (enhet = 1 linjeavstand) ================= */
+var GLYPH = {"gclef": "M1.846,0.878Q2.022,1.495 2.022,1.889Q2.022,2.2 1.804,2.4Q1.587,2.6 1.275,2.6Q0.982,2.6 0.764,2.427Q0.547,2.253 0.547,2.006Q0.547,1.83 0.667,1.674Q0.788,1.519 0.961,1.519Q1.134,1.519 1.243,1.645Q1.352,1.771 1.352,1.936Q1.352,2.3 0.94,2.3Q1.046,2.465 1.281,2.465Q1.369,2.465 1.461,2.438Q1.552,2.412 1.652,2.347Q1.751,2.283 1.813,2.145Q1.875,2.006 1.875,1.812Q1.875,1.689 1.71,0.925Q1.581,0.96 1.387,0.96Q0.817,0.96 0.408,0.537Q0,0.114 0,-0.474Q0,-0.68 0.068,-0.891Q0.135,-1.103 0.22,-1.264Q0.306,-1.426 0.473,-1.629Q0.641,-1.832 0.755,-1.952Q0.87,-2.073 1.076,-2.278Q0.94,-2.76 0.94,-3.16Q0.94,-3.689 1.134,-4.044Q1.328,-4.4 1.522,-4.4Q1.581,-4.4 1.654,-4.324Q1.728,-4.247 1.798,-4.112Q1.869,-3.977 1.919,-3.756Q1.969,-3.536 1.969,-3.283Q1.969,-2.349 1.305,-1.738L1.458,-1.044Q1.552,-1.062 1.628,-1.062Q1.987,-1.062 2.233,-0.771Q2.48,-0.48 2.48,-0.062Q2.48,0.631 1.846,0.878ZM1.798,-3.495Q1.798,-3.818 1.61,-3.818Q1.399,-3.818 1.252,-3.507Q1.105,-3.195 1.105,-2.813Q1.105,-2.566 1.181,-2.384Q1.405,-2.519 1.602,-2.869Q1.798,-3.219 1.798,-3.495ZM2.222,0.137Q2.222,-0.186 2.034,-0.38Q1.846,-0.574 1.546,-0.574L1.81,0.754Q2.222,0.584 2.222,0.137ZM1.687,0.79L1.416,-0.562Q1.258,-0.527 1.126,-0.368Q0.993,-0.209 0.993,-0.039Q0.993,0.049 1.029,0.134Q1.064,0.22 1.114,0.278Q1.164,0.337 1.217,0.384Q1.27,0.431 1.305,0.452Q1.34,0.472 1.34,0.472L1.293,0.502Q1.099,0.449 0.926,0.267Q0.752,0.084 0.752,-0.192Q0.752,-0.468 0.926,-0.7Q1.099,-0.932 1.311,-1.009L1.205,-1.638Q0.282,-0.868 0.282,-0.151Q0.282,0.278 0.605,0.566Q0.929,0.854 1.34,0.854Q1.44,0.854 1.687,0.79Z", "fclef": "M2.527,-0.722Q2.62,-0.722 2.685,-0.655Q2.749,-0.588 2.749,-0.5Q2.749,-0.412 2.677,-0.345Q2.605,-0.278 2.522,-0.278Q2.305,-0.278 2.305,-0.51Q2.305,-0.603 2.372,-0.663Q2.439,-0.722 2.527,-0.722ZM2.749,0.492Q2.749,0.59 2.682,0.658Q2.615,0.725 2.527,0.725Q2.305,0.725 2.305,0.492Q2.305,0.41 2.37,0.342Q2.434,0.275 2.527,0.275Q2.62,0.275 2.685,0.348Q2.749,0.42 2.749,0.492ZM1.085,-0.996Q1.504,-0.996 1.788,-0.709Q2.072,-0.422 2.072,-0.025Q2.072,0.172 2.018,0.358Q1.964,0.544 1.845,0.712Q1.726,0.88 1.607,1.019Q1.488,1.159 1.297,1.298Q1.106,1.438 0.977,1.534Q0.848,1.629 0.628,1.748Q0.408,1.867 0.313,1.916Q0.217,1.965 0.026,2.058L0,1.975Q0.005,1.97 0.14,1.882Q0.274,1.795 0.357,1.74Q0.439,1.686 0.602,1.557Q0.765,1.428 0.873,1.317Q0.982,1.205 1.119,1.037Q1.256,0.87 1.339,0.709Q1.421,0.549 1.481,0.342Q1.54,0.136 1.54,-0.071Q1.54,-0.882 0.966,-0.882Q0.775,-0.882 0.641,-0.833Q0.506,-0.784 0.447,-0.712Q0.388,-0.64 0.362,-0.585Q0.336,-0.531 0.336,-0.49Q0.336,-0.412 0.439,-0.412Q0.481,-0.412 0.537,-0.43Q0.594,-0.448 0.615,-0.448Q0.755,-0.448 0.848,-0.36Q0.941,-0.273 0.941,-0.143Q0.941,0.006 0.827,0.105Q0.713,0.203 0.558,0.203Q0.357,0.203 0.227,0.084Q0.098,-0.035 0.098,-0.221Q0.098,-0.562 0.39,-0.779Q0.682,-0.996 1.085,-0.996Z", "cclef": "M1.888,0.31Q2.234,0.31 2.442,0.523Q2.65,0.736 2.65,1.086Q2.65,1.467 2.401,1.728Q2.152,1.99 1.792,1.99Q1.482,1.99 1.274,1.85Q1.066,1.711 1.066,1.462Q1.066,1.36 1.152,1.272Q1.239,1.183 1.35,1.183Q1.472,1.183 1.556,1.266Q1.64,1.35 1.64,1.462Q1.64,1.538 1.561,1.637Q1.482,1.736 1.482,1.751Q1.482,1.843 1.66,1.843Q2.102,1.843 2.102,1.086Q2.102,0.883 2.081,0.759Q2.061,0.635 2.01,0.584Q1.959,0.533 1.914,0.52Q1.868,0.508 1.777,0.508Q1.629,0.508 1.53,0.624Q1.431,0.741 1.335,1.03Q1.213,0.35 0.883,0.066L0.883,2L0.69,2L0.69,-2L0.883,-2L0.883,-0.061Q1.213,-0.345 1.335,-1.02Q1.462,-0.503 1.777,-0.503Q1.868,-0.503 1.914,-0.513Q1.959,-0.523 2.01,-0.574Q2.061,-0.624 2.081,-0.746Q2.102,-0.868 2.102,-1.076Q2.102,-1.838 1.66,-1.838Q1.482,-1.838 1.482,-1.751Q1.482,-1.731 1.561,-1.632Q1.64,-1.533 1.64,-1.457Q1.64,-1.345 1.556,-1.261Q1.472,-1.178 1.35,-1.178Q1.239,-1.178 1.152,-1.266Q1.066,-1.355 1.066,-1.457Q1.066,-1.706 1.274,-1.845Q1.482,-1.985 1.792,-1.985Q2.152,-1.985 2.401,-1.723Q2.65,-1.462 2.65,-1.076Q2.65,-0.741 2.444,-0.525Q2.239,-0.31 1.888,-0.31Q1.711,-0.31 1.533,-0.376L1.365,0L1.533,0.381Q1.721,0.31 1.888,0.31ZM0.503,2L0,2L0,-2L0.503,-2Z", "sharp": "M0.479,0.529L0.339,0.584L0.339,1.189L0.205,1.237L0.205,0.632L-0.211,0.793L-0.211,1.398L-0.345,1.45L-0.345,0.845L-0.479,0.894L-0.479,0.602L-0.345,0.55L-0.345,-0.195L-0.479,-0.143L-0.479,-0.435L-0.345,-0.486L-0.345,-1.189L-0.211,-1.24L-0.211,-0.541L0.205,-0.702L0.205,-1.401L0.339,-1.45L0.339,-0.754L0.479,-0.809L0.479,-0.511L0.339,-0.456L0.339,0.286L0.479,0.231ZM0.205,0.334L0.205,-0.407L-0.211,-0.246L-0.211,0.499Z", "flat": "M0.092,-0.757Q0.257,-0.757 0.341,-0.655Q0.425,-0.552 0.425,-0.372Q0.425,-0.235 0.333,-0.113Q0.241,0.008 0,0.25Q-0.241,0.493 -0.425,0.72L-0.425,-1.821L-0.291,-1.88L-0.291,-0.636Q-0.138,-0.757 0.092,-0.757ZM0.123,-0.344Q0.123,-0.546 -0.03,-0.546Q-0.104,-0.546 -0.18,-0.501Q-0.257,-0.456 -0.291,-0.378L-0.291,0.344Q-0.104,0.132 0.009,-0.053Q0.123,-0.238 0.123,-0.344Z"};
+
+/* ================= Musikkdata ================= */
+// Tonehøyde p = antall diatoniske trinn fra C0: p = oktav*7 + bokstav (C=0 … H/B=6). C4 (midtre C) = 28.
+var SEMI = [0,2,4,5,7,9,11];
+var CLEFS = {
+  F:{id:'F',label:'F-nøkkel',            mid:22,ref:24,glyph:'fclef',refY:-1,lo:14,hi:32},
+  T:{id:'T',label:'C-nøkkel (tenor)',    mid:26,ref:28,glyph:'cclef',refY:-1,lo:21,hi:37},
+  G:{id:'G',label:'G-nøkkel',            mid:34,ref:32,glyph:'gclef',refY: 1,lo:28,hi:42},
+  A:{id:'A',label:'C-nøkkel (alt)',      mid:28,ref:28,glyph:'cclef',refY: 0,lo:20,hi:35}
+};
+var CLEF_ORDER = ['F','T','G','A'];
+var TYPE_LABEL = {name:'Navn tonen',place:'Plasser tonen',transfer:'Samme tone, ny nøkkel',octave:'Oktavhopp'};
+
+var letterOf = function(p){ return ((p%7)+7)%7; };
+var octOf    = function(p){ return Math.floor(p/7); };
+var semis    = function(p,acc){ return 12*octOf(p)+SEMI[letterOf(p)]+(acc||0); };
+
+var ST = {clefs:['F','T','G'],types:['name','place','transfer','octave'],range:'full',acc:'off',sys:'no',n:15};
+
+/* ---------- Navn ---------- */
+function nameNo(l,acc){
+  var base=['C','D','E','F','G','A','H'][l];
+  if(!acc) return base;
+  if(acc>0) return base+'is';
+  if(l===6) return 'B';
+  if(l===2) return 'Es';
+  if(l===5) return 'As';
+  return base+'es';
+}
+var SUP = {4:'¹',5:'²',6:'³'};
+function fullNo(p,acc){
+  var l=letterOf(p), o=octOf(p), n=nameNo(l,acc);
+  if(o<=2) return n+(o===1?'₁':'');
+  n=n.charAt(0).toLowerCase()+n.slice(1);
+  return n+(SUP[o]||'');
+}
+function fullInt(p,acc){
+  var l=letterOf(p), o=octOf(p);
+  return ['C','D','E','F','G','A','B'][l]+(acc>0?'♯':acc<0?'♭':'')+o;
+}
+function nm(p,acc){ return ST.sys==='no' ? fullNo(p,acc||0) : fullInt(p,acc||0); }
+function nmAlt(p,acc){ return ST.sys==='no' ? fullInt(p,acc||0) : fullNo(p,acc||0); }
+var OCT_NO = {1:'kontraoktav',2:'stor oktav',3:'liten oktav',4:'enstrøken oktav',5:'tostrøken oktav',6:'trestrøken oktav'};
+function octLabel(o){ return ST.sys==='no' ? (OCT_NO[o]||('oktav '+o)) : ('oktav '+o); }
+
+/* ---------- Tilfeldighet ---------- */
+function ri(n){ return Math.floor(Math.random()*n); }
+function pick(a){ return a[ri(a.length)]; }
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=ri(i+1); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+/* ---------- Oppgavegenerering ---------- */
+function pool(clefId, near){
+  var c=CLEFS[clefId], lo=c.lo, hi=c.hi;
+  if(near){ lo=Math.max(lo,c.mid-7); hi=Math.min(hi,c.mid+7); }
+  var r=[]; for(var p=lo;p<=hi;p++) r.push(p); return r;
+}
+function pickAcc(p){
+  if(ST.acc!=='on' || Math.random()>=0.4) return 0;
+  var l=letterOf(p), o=[];
+  if([0,1,3,4,5].indexOf(l)>=0) o.push(1);   // cis dis fis gis ais
+  if([1,2,4,5,6].indexOf(l)>=0) o.push(-1);  // des es ges as b
+  return o.length?pick(o):0;
+}
+function makeQuestion(type){
+  var near = ST.range==='near', clef, p;
+  if(type==='name' || type==='place'){
+    clef=pick(ST.clefs); p=pick(pool(clef,near));
+    return {type:type,clef:clef,p:p,acc:pickAcc(p)};
+  }
+  if(type==='transfer'){
+    var a=pick(ST.clefs), others=ST.clefs.filter(function(c){return c!==a;});
+    if(!others.length) return makeQuestion('name');
+    var b=pick(others);
+    var inter=function(nr){ var pb=pool(b,nr); return pool(a,nr).filter(function(x){return pb.indexOf(x)>=0;}); };
+    var cand=inter(near); if(cand.length<3) cand=inter(false);
+    if(!cand.length) return makeQuestion('name');
+    p=pick(cand);
+    return {type:type,from:a,to:b,clef:b,p:p,acc:pickAcc(p)};
+  }
+  // octave
+  clef=pick(ST.clefs);
+  var pl=pool(clef,near), opts=[];
+  pl.forEach(function(x){ [1,2].forEach(function(n){ [1,-1].forEach(function(d){
+    var t=x+d*7*n; if(t>=pl[0] && t<=pl[pl.length-1]) opts.push({p:x,n:n,d:d});
+  }); }); });
+  if(!opts.length) return makeQuestion('name');
+  var o1=opts.filter(function(o){return o.n===1;}), o2=opts.filter(function(o){return o.n===2;});
+  var o=(o2.length && Math.random()<0.3) ? pick(o2) : pick(o1.length?o1:opts);
+  return {type:'octave',clef:clef,p:o.p,acc:pickAcc(o.p),d:o.d,n:o.n,target:o.p+o.d*7*o.n};
+}
+function qKey(q){ return [q.type,q.clef,q.from||'',q.p,q.acc,q.d||'',q.n||''].join('|'); }
+function buildQuestions(n){
+  var types=ST.types.filter(function(t){ return t!=='transfer' || ST.clefs.length>1; });
+  var order=[], qs=[], recent=[];
+  while(qs.length<n){
+    if(!order.length) order=shuffle(types);
+    var t=order.pop(), q=null;
+    for(var tries=0;tries<14;tries++){
+      q=makeQuestion(t);
+      if(recent.indexOf(qKey(q))<0) break;
+    }
+    recent.push(qKey(q)); if(recent.length>5) recent.shift();
+    qs.push(q);
+  }
+  return qs;
+}
+function targetOf(q){ return q.type==='octave' ? q.target : q.p; }
+
+/* ---------- Vurdering ---------- */
+function evalName(q,a){
+  var L=letterOf(q.p), O=octOf(q.p);
+  var lOk=a.l===L, aOk=(a.acc||0)===q.acc, oOk=a.o===O, ok=lOk&&aOk&&oOk, kind='ok';
+  if(!ok){
+    if(lOk&&aOk) kind='oct';
+    else if(oOk&&!lOk) kind='letter';
+    else if(oOk&&lOk) kind='acc';
+    else kind='multi';
+  }
+  return {ok:ok,kind:kind,d:a.o-O};
+}
+function evalPos(target,sel){
+  var d=sel-target;
+  return {ok:d===0, kind:d===0?'ok':(d%7===0?'oct':(Math.abs(d)===1?'near':'far')), d:d};
+}
+
+/* ---------- Forklaringer ---------- */
+function clefDesc(c){
+  if(c.id==='F') return 'Prikkene omslutter F-linjen (4. linje nedenfra) = '+nm(c.ref,0)+'.';
+  if(c.id==='T') return 'Nøkkelens midte peker på midtre C ('+nm(c.ref,0)+'), som i tenornøkkel ligger på 4. linje nedenfra.';
+  if(c.id==='A') return 'Nøkkelens midte peker på midtre C ('+nm(c.ref,0)+'), som i altnøkkel ligger på midtlinjen.';
+  return 'Krøllen går rundt G-linjen (2. linje nedenfra) = '+nm(c.ref,0)+'.';
+}
+function how(clefId,p){
+  var c=CLEFS[clefId], n=p-c.ref;
+  var t='<b>'+c.label+':</b> '+clefDesc(c);
+  if(n===0) return t+' Tonen står på akkurat denne linjen.';
+  var dir=n>0?1:-1, items=[], crossed=false;
+  for(var q=c.ref; q!==p+dir; q+=dir){
+    var edge=(q!==c.ref) && ((dir>0 && letterOf(q)===0) || (dir<0 && letterOf(q)===6));
+    if(edge) crossed=true;
+    var s=nm(q,0);
+    items.push(edge?'<mark class="om">'+s+'</mark>':s);
+  }
+  if(items.length>10) items=items.slice(0,4).concat(['…']).concat(items.slice(-4));
+  t+=' Tonen ligger '+Math.abs(n)+' trinn '+(n>0?'over':'under')+' (en linje eller et mellomrom per trinn): '+items.join(' → ')+'.';
+  if(crossed) t+=' Oktaven skifter mellom '+(ST.sys==='no'?'H':'B')+' og C (markert).';
+  return t;
+}
+function plural(n,s,pl){ return n+' '+(n===1?s:pl); }
+
+/* ================= Tegning ================= */
+var W=20, XN=12.5;
+var ACC_ID = {'1':'sharp','-1':'flat'};
+
+function ledgerSteps(s){
+  var r=[], k;
+  if(s>=6) for(k=6;k<=s;k+=2) r.push(k);
+  if(s<=-6) for(k=-6;k>=s;k-=2) r.push(k);
+  return r;
+}
+function noteMarkup(s,acc,x,cls){
+  var y=-s*0.5, g='<g class="n '+(cls||'')+'">';
+  ledgerSteps(s).forEach(function(k){
+    g+='<line class="ledger" x1="'+(x-1.05)+'" x2="'+(x+1.05)+'" y1="'+(-k*0.5)+'" y2="'+(-k*0.5)+'"/>';
+  });
+  if(acc) g+='<path class="acc" d="'+GLYPH[ACC_ID[acc]]+'" transform="translate('+(x-1.85)+' '+y+')"/>';
+  g+='<ellipse class="head" rx="0.68" ry="0.47" transform="translate('+x+' '+y+') rotate(-20)"/>';
+  if(s<0) g+='<line class="stem" x1="'+(x+0.62)+'" x2="'+(x+0.62)+'" y1="'+(y-0.1)+'" y2="'+(y-3.4)+'"/>';
+  else    g+='<line class="stem" x1="'+(x-0.62)+'" x2="'+(x-0.62)+'" y1="'+(y+0.1)+'" y2="'+(y+3.4)+'"/>';
+  return g+'</g>';
+}
+/* notes: [{p,acc,x,cls}] ; opt: {interactive, x, acc, tight} */
+function staffSVG(clefId,notes,opt){
+  opt=opt||{};
+  var c=CLEFS[clefId], top, bot;
+  if(opt.tight){
+    var ss=notes.map(function(n){return n.p-c.mid;}).concat([0]);
+    top=Math.max(8,Math.max.apply(null,ss)+3); bot=Math.min(-8,Math.min.apply(null,ss)-3);
+  } else { top=c.hi+2-c.mid; bot=c.lo-2-c.mid; }
+  var vbY=-top*0.5, vbH=(top-bot)*0.5, i, out;
+  out='<svg class="staff'+(opt.interactive?' interactive':'')+(opt.small?' small':'')+'" viewBox="0 '+vbY+' '+W+' '+vbH+'" '+
+      (opt.interactive?'tabindex="0" role="application" aria-label="Notesystem med '+c.label+'. Klikk eller bruk piltastene for å plassere tonen." ':'role="img" aria-label="Notesystem med '+c.label+'" ')+
+      'data-clef="'+clefId+'" data-top="'+top+'" data-bot="'+bot+'" data-x="'+(opt.x||XN)+'">';
+  if(opt.interactive) out+='<rect class="zone" x="4.4" y="'+vbY+'" width="'+(W-4.4)+'" height="'+vbH+'" rx="0.5"/>';
+  for(i=-2;i<=2;i++) out+='<line class="sl" x1="0.3" x2="'+(W-0.3)+'" y1="'+i+'" y2="'+i+'"/>';
+  out+='<line class="barline" x1="'+(W-0.3)+'" x2="'+(W-0.3)+'" y1="-2" y2="2"/>';
+  out+='<path class="clef" d="'+GLYPH[c.glyph]+'" transform="translate(0.7 '+c.refY+')"/>';
+  notes.forEach(function(n){ out+=noteMarkup(n.p-c.mid,n.acc||0,n.x||XN,n.cls||''); });
+  if(opt.interactive) out+='<g class="sel-layer"></g><g class="ghost"></g><rect class="hit" x="4.4" y="'+vbY+'" width="'+(W-4.4)+'" height="'+vbH+'" fill="transparent"/>';
+  return out+'</svg>';
+}
+
+/* Plukker: gjør et notesystem klikkbart (mus, berøring og piltaster) */
+function attachPicker(svg,acc,onPick){
+  var hit=svg.querySelector('.hit'), ghost=svg.querySelector('.ghost'), sel=svg.querySelector('.sel-layer');
+  var top=+svg.dataset.top, bot=+svg.dataset.bot, x=+svg.dataset.x, locked=false, cur=null;
+  function stepAt(ev){
+    var r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+    var yu=vb.y+(ev.clientY-r.top)/r.height*vb.height;
+    return Math.max(bot,Math.min(top,Math.round(-yu/0.5)));
+  }
+  function put(s){ cur=s; sel.innerHTML=noteMarkup(s,acc,x,'n-sel'); ghost.innerHTML=''; onPick(s); }
+  hit.addEventListener('pointermove',function(ev){
+    if(locked||ev.pointerType==='touch') return;
+    ghost.innerHTML=noteMarkup(stepAt(ev),acc,x,'n-ghost');
+  });
+  hit.addEventListener('pointerleave',function(){ ghost.innerHTML=''; });
+  hit.addEventListener('click',function(ev){ if(!locked) put(stepAt(ev)); });
+  svg.addEventListener('keydown',function(ev){
+    if(locked) return;
+    var d=0;
+    if(ev.key==='ArrowUp') d=ev.shiftKey?7:1;
+    else if(ev.key==='ArrowDown') d=ev.shiftKey?-7:-1;
+    else if(ev.key==='PageUp') d=7;
+    else if(ev.key==='PageDown') d=-7;
+    else return;
+    ev.preventDefault();
+    var s=cur===null?0:Math.max(bot,Math.min(top,cur+d));
+    put(s);
+  });
+  return {lock:function(){ locked=true; ghost.innerHTML=''; svg.classList.add('locked'); svg.classList.remove('interactive'); svg.removeAttribute('tabindex'); }};
+}
+
+/* ================= Oktavkart (hjelp) ================= */
+function refHTML(){
+  var no=ST.sys==='no', rows=[], i;
+  var names=no?['stor oktav','liten oktav','enstrøken','tostrøken','trestrøken']:['oktav 2','oktav 3','oktav 4','oktav 5','oktav 6'];
+  for(i=0;i<5;i++){
+    var o=i+2, a=nm(o*7,0), b=nm(o*7+6,0);
+    rows.push('<tr><td>'+names[i]+'</td><td>'+a+' – '+b+'</td></tr>');
+  }
+  var strings=[14,18,22,26].map(function(p){ return '<span>'+nm(p,0)+'</span>'; }).join('');
+  var mini=CLEF_ORDER.map(function(id){
+    var svg=staffSVG(id,[{p:28,acc:0,x:XN,cls:'n-given'}],{tight:true});
+    var pos={F:'1. hjelpelinje over',T:'4. linje',G:'1. hjelpelinje under',A:'midtlinjen'}[id];
+    return '<figure>'+svg+'<figcaption>'+CLEFS[id].label+': '+pos+'</figcaption></figure>';
+  }).join('');
+  return '<h3>Oktavene (alle starter på C)</h3>'+
+    '<table><thead><tr><th>Oktav</th><th>Fra – til</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>'+
+    '<h3>Cellostrengene (åpne)</h3><div class="strings">'+strings+'</div>'+
+    '<h3>Midtre C ('+nm(28,0)+') i de ulike nøklene</h3><div class="mini">'+mini+'</div>'+
+    '<p class="note-small">Oktaven skifter mellom '+(no?'H':'B')+' og C. Én oktav = 7 trinn opp eller ned – en tone på en linje havner derfor i et mellomrom (og omvendt).</p>';
+}
+function fillRefs(){ Array.prototype.forEach.call(document.querySelectorAll('.ref-body'),function(el){ el.innerHTML=refHTML(); }); }
+
+/* ================= Test-eksport ================= */
+var API={ST:ST,CLEFS:CLEFS,letterOf:letterOf,octOf:octOf,semis:semis,nm:nm,nmAlt:nmAlt,nameNo:nameNo,fullNo:fullNo,fullInt:fullInt,pool:pool,
+  makeQuestion:makeQuestion,buildQuestions:buildQuestions,evalName:evalName,evalPos:evalPos,how:how,staffSVG:staffSVG,noteMarkup:noteMarkup,refHTML:refHTML,targetOf:targetOf};
+API.getState=function(){ return S; };
+(typeof globalThis!=='undefined'?globalThis:this).NN=API;
+if(typeof document==='undefined') return;
+
+/* ================= Innstillinger ================= */
+var $=function(s,r){ return (r||document).querySelector(s); };
+var $$=function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+function loadST(){
+  try{
+    var o=JSON.parse(localStorage.getItem('nn-cello')||'null');
+    if(o){
+      if(Array.isArray(o.clefs)) ST.clefs=o.clefs.filter(function(c){return CLEFS[c];});
+      if(Array.isArray(o.types)) ST.types=o.types.filter(function(t){return TYPE_LABEL[t];});
+      if(o.range==='near'||o.range==='full') ST.range=o.range;
+      if(o.acc==='on'||o.acc==='off') ST.acc=o.acc;
+      if(o.sys==='no'||o.sys==='int') ST.sys=o.sys;
+      if([10,15,20].indexOf(+o.n)>=0) ST.n=+o.n;
+    }
+  }catch(e){}
+}
+function saveST(){ try{ localStorage.setItem('nn-cello',JSON.stringify(ST)); }catch(e){} }
+function applySTtoUI(){
+  $$('#set-clefs input').forEach(function(i){ i.checked=ST.clefs.indexOf(i.value)>=0; });
+  $$('#set-types input').forEach(function(i){ i.checked=ST.types.indexOf(i.value)>=0; });
+  $$('#set-range input').forEach(function(i){ i.checked=i.value===ST.range; });
+  $$('#set-acc input').forEach(function(i){ i.checked=i.value===ST.acc; });
+  $$('#set-sys input').forEach(function(i){ i.checked=i.value===ST.sys; });
+  $$('#set-n input').forEach(function(i){ i.checked=+i.value===ST.n; });
+  syncTransfer();
+}
+function readSTfromUI(){
+  ST.clefs=CLEF_ORDER.filter(function(c){ var i=$('#set-clefs input[value="'+c+'"]'); return i&&i.checked; });
+  ST.types=['name','place','transfer','octave'].filter(function(t){ var i=$('#set-types input[value="'+t+'"]'); return i&&i.checked; });
+  ST.range=($('#set-range input:checked')||{}).value||'full';
+  ST.acc=($('#set-acc input:checked')||{}).value||'off';
+  ST.sys=($('#set-sys input:checked')||{}).value||'no';
+  ST.n=+(($('#set-n input:checked')||{}).value||15);
+}
+function syncTransfer(){
+  var n=$$('#set-clefs input:checked').length, t=$('#set-types input[value="transfer"]');
+  t.disabled = n<2;
+  if(n<2) t.checked=false;
+  $('#transfer-warn').hidden = n>=2;
+}
+
+/* ================= Runde ================= */
+var S=null;
+function show(id){
+  ['v-start','v-quiz','v-result'].forEach(function(v){ $('#'+v).hidden=(v!==id); });
+  window.scrollTo(0,0);
+}
+function startRound(qs){
+  S={qs:qs,i:0,score:0,log:[],picker:null,ans:null,pick:null,checked:false};
+  show('v-quiz');
+  renderQuestion();
+}
+
+function stageNotes(q,mode,sel,res){
+  // returnerer HTML for scenen
+  var cl=CLEFS[q.clef];
+  if(q.type==='name'){
+    return staffSVG(q.clef,[{p:q.p,acc:q.acc,x:XN,cls:mode==='review'?(res.ok?'n-ok':'n-given'):'n-given'}],{tight:true});
+  }
+  if(q.type==='place'){
+    if(mode==='ask') return staffSVG(q.clef,[],{interactive:true,x:XN});
+    var ns=res.ok?[{p:q.p,acc:q.acc,x:XN,cls:'n-ok'}]:[{p:sel,acc:q.acc,x:9,cls:'n-bad'},{p:q.p,acc:q.acc,x:15,cls:'n-ok'}];
+    return staffSVG(q.clef,ns,{});
+  }
+  if(q.type==='transfer'){
+    var top='<div class="cap">'+CLEFS[q.from].label+'</div>'+staffSVG(q.from,[{p:q.p,acc:q.acc,x:XN,cls:'n-given'}],{tight:true,small:true});
+    var cap='<div class="cap">'+CLEFS[q.to].label+(mode==='ask'?' – plasser tonen her':'')+'</div>';
+    if(mode==='ask') return top+cap+staffSVG(q.to,[],{interactive:true,x:XN});
+    var nt=res.ok?[{p:q.p,acc:q.acc,x:XN,cls:'n-ok'}]:[{p:sel+0,acc:q.acc,x:9,cls:'n-bad'},{p:q.p,acc:q.acc,x:15,cls:'n-ok'}];
+    return top+cap+staffSVG(q.to,nt,{});
+  }
+  // octave
+  var given={p:q.p,acc:q.acc,x:6.5,cls:'n-given'};
+  if(mode==='ask') return staffSVG(q.clef,[given],{interactive:true,x:13});
+  var no=res.ok?[given,{p:q.target,acc:q.acc,x:13,cls:'n-ok'}]:[given,{p:sel,acc:q.acc,x:10.5,cls:'n-bad'},{p:q.target,acc:q.acc,x:15.5,cls:'n-ok'}];
+  return staffSVG(q.clef,no,{});
+}
+
+function renderQuestion(){
+  var q=S.qs[S.i];
+  S.checked=false; S.pick=null; S.picker=null; S.ans={l:null,acc:0,o:null,viaB:false};
+  $('#prog-txt').textContent=(S.i+1)+' / '+S.qs.length;
+  $('#prog-bar').style.width=(S.i/S.qs.length*100)+'%';
+  var fb=$('#feedback'); fb.hidden=true; fb.innerHTML=''; fb.className='feedback';
+  var main=$('#btn-main'); main.textContent='Sjekk svar'; main.disabled=true;
+  $('#q-type').textContent=TYPE_LABEL[q.type];
+  var cl=CLEFS[q.clef], prompt, hint='', stage=$('#stage'), ans=$('#answer');
+  ans.innerHTML='';
+  if(q.type==='name'){
+    prompt='Hvilken tone er dette? <span class="muted" style="font-size:1rem;font-weight:600">· '+cl.label+'</span>';
+    hint='Velg tonenavn'+(ST.acc==='on'?', fortegn':'')+' og oktav. Tastatur: bokstaver og tall 1–5.';
+  } else if(q.type==='place'){
+    prompt='Plasser tonen <b>'+nm(q.p,q.acc)+'</b> i '+cl.label;
+    hint='Klikk eller trykk i notesystemet. Piltaster flytter ett trinn, Shift+pil flytter en oktav. Fortegnet tegnes automatisk.';
+  } else if(q.type==='transfer'){
+    prompt='Skriv <b>samme tone</b> i <b>'+CLEFS[q.to].label+'</b>';
+    hint='Tonen skal ha samme tonehøyde (samme navn og oktav) – bare skrevet i en annen nøkkel.';
+  } else {
+    prompt='Plasser <b>samme tone, '+(q.n===1?'én oktav':'to oktaver')+' '+(q.d>0?'høyere':'lavere')+'</b>';
+    hint='Tips: én oktav = 7 trinn. Piltaster flytter ett trinn, Shift+pil flytter en hel oktav.';
+  }
+  $('#q-prompt').innerHTML=prompt;
+  $('#q-hint').textContent=hint;
+  stage.innerHTML=stageNotes(q,'ask');
+  if(q.type==='name'){ buildKeys(); }
+  else {
+    var svgs=$$('svg.interactive',stage), svg=svgs[0], c2=CLEFS[q.type==='transfer'?q.to:q.clef];
+    S.picker=attachPicker(svg,q.acc,function(s){ S.pick=c2.mid+s; main.disabled=false; });
+  }
+}
+
+/* ---- Svar-taster for «Navn tonen» ---- */
+function buildKeys(){
+  var no=ST.sys==='no', html='', i;
+  html+='<div class="keylbl">Tonenavn</div><div class="keyrow" id="row-l">';
+  var letters=['C','D','E','F','G','A',no?'H':'B'];
+  letters.forEach(function(L,idx){ html+='<button type="button" class="key" data-l="'+idx+'">'+L+'</button>'; });
+  if(no && ST.acc==='on') html+='<button type="button" class="key" data-l="6" data-b="1">B</button>';
+  html+='</div>';
+  if(ST.acc==='on'){
+    html+='<div class="keylbl">Fortegn</div><div class="keyrow" id="row-a">'+
+      '<button type="button" class="key" data-a="-1" aria-label="b (ned en halvtone)">♭</button>'+
+      '<button type="button" class="key on" data-a="0" aria-label="uten fortegn">uten</button>'+
+      '<button type="button" class="key" data-a="1" aria-label="kryss (opp en halvtone)">♯</button></div>';
+  }
+  html+='<div class="keylbl">Oktav</div><div class="keyrow" id="row-o">';
+  var names=no?['stor','liten','enstrøken','tostrøken','trestrøken']:['2','3','4','5','6'];
+  var subs=no?['C–H','c–h','c¹–h¹','c²–h²','c³–h³']:['C2–B2','C3–B3','C4–B4','C5–B5','C6–B6'];
+  for(i=0;i<5;i++) html+='<button type="button" class="key oct" data-o="'+(i+2)+'">'+names[i]+'<small>'+subs[i]+'</small></button>';
+  html+='</div><div class="yours" id="yours"></div>';
+  $('#answer').innerHTML=html;
+  $$('#answer .key').forEach(function(b){ b.addEventListener('click',function(){ onKey(b); }); });
+}
+function onKey(b){
+  if(S.checked) return;
+  var a=S.ans;
+  if(b.dataset.l!==undefined){
+    if(b.dataset.b){ a.l=6; a.acc=-1; a.viaB=true; }
+    else {
+      a.l=+b.dataset.l;
+      if(a.viaB){ a.acc=0; a.viaB=false; }
+    }
+  } else if(b.dataset.a!==undefined){ a.acc=+b.dataset.a; a.viaB=false; }
+  else if(b.dataset.o!==undefined){ a.o=+b.dataset.o; }
+  refreshKeys();
+}
+function refreshKeys(){
+  var a=S.ans, no=ST.sys==='no';
+  $$('#answer .key').forEach(function(b){
+    var on=false;
+    if(b.dataset.l!==undefined){
+      if(b.dataset.b) on=(a.l===6 && a.acc===-1 && a.viaB);
+      else { on=(a.l===+b.dataset.l); if(on && a.viaB) on=false; }
+    } else if(b.dataset.a!==undefined){ on=(a.acc===+b.dataset.a); }
+    else if(b.dataset.o!==undefined){ on=(a.o===+b.dataset.o); }
+    b.classList.toggle('on',on);
+  });
+  var y=$('#yours');
+  if(a.l!==null && a.o!==null){
+    var p=a.o*7+a.l;
+    y.innerHTML='Ditt svar: <b>'+nm(p,a.acc)+'</b>';
+    $('#btn-main').disabled=false;
+  } else {
+    y.textContent='';
+    $('#btn-main').disabled=true;
+  }
+}
+
+/* ---- Sjekk ---- */
+function check(){
+  var q=S.qs[S.i], res, fb=$('#feedback'), title, body='', ok;
+  S.checked=true;
+  if(q.type==='name'){
+    var a=S.ans, userP=a.o*7+a.l;
+    res=evalName(q,a); ok=res.ok;
+    $$('#answer .key').forEach(function(b){ b.disabled=true; });
+    $('#stage').innerHTML=stageNotes(q,'review',null,res);
+    var good='<b>'+nm(q.p,q.acc)+'</b> <span class="muted">('+nmAlt(q.p,q.acc)+')</span>';
+    if(ok){ title='Riktig!'; body='<p>Tonen er '+good+', i '+octLabel(octOf(q.p))+'.</p>'; }
+    else if(res.kind==='oct'){
+      title='Riktig tonenavn, men feil oktav';
+      body='<p>Du svarte <b>'+nm(userP,a.acc)+'</b> ('+octLabel(a.o)+'). Riktig er '+good+', i '+octLabel(octOf(q.p))+' – '+
+           plural(Math.abs(res.d),'oktav','oktaver')+' '+(res.d>0?'for høyt':'for lavt')+'.</p>';
+    } else {
+      title='Ikke helt';
+      body='<p>Du svarte <b>'+nm(userP,a.acc)+'</b>. Riktig svar er '+good+'.</p>';
+    }
+    body+='<p class="why">'+how(q.clef,q.p)+'</p>';
+    S.log.push({q:q,ok:ok,kind:res.kind,clef:q.clef,userTxt:nm(userP,a.acc)});
+  } else {
+    var tgt=targetOf(q), sel=S.pick, cl=CLEFS[q.type==='transfer'?q.to:q.clef];
+    res=evalPos(tgt,sel); ok=res.ok;
+    S.picker.lock();
+    $('#stage').innerHTML=stageNotes(q,'review',sel,res);
+    var good2='<b>'+nm(tgt,q.acc)+'</b> <span class="muted">('+nmAlt(tgt,q.acc)+')</span>';
+    var you='<b>'+nm(sel,q.acc)+'</b>';
+    if(ok){
+      title='Riktig!';
+      body='<p>'+(q.type==='place'?'Det er '+good2+'.':q.type==='transfer'?'Samme tone, '+good2+', i '+cl.label+'.':'Én '+(q.d>0?'oktav opp':'oktav ned')+' gir '+good2+'.')+'</p>';
+    } else if(res.kind==='oct'){
+      title='Riktig tonenavn, men feil oktav';
+      body='<p>Du plasserte '+you+' – det er '+plural(Math.abs(res.d)/7,'oktav','oktaver')+' '+(res.d>0?'for høyt':'for lavt')+'. Riktig er '+good2+'.</p>';
+    } else if(res.kind==='near'){
+      title='Ett trinn ved siden av';
+      body='<p>Du plasserte '+you+'. Riktig er '+good2+'.</p>';
+    } else {
+      title='Ikke helt';
+      body='<p>Du plasserte '+you+'. Riktig er '+good2+'.</p>';
+    }
+    if(q.type==='octave'){
+      body+='<p class="why"><b>Oktav = 7 trinn.</b> '+nm(q.p,q.acc)+' → '+nm(tgt,q.acc)+' er '+plural(7*q.n,'trinn','trinn')+' '+(q.d>0?'opp':'ned')+
+            ' (3½ linjeavstand per oktav), så en tone på en linje havner i et mellomrom og omvendt.</p>';
+    } else {
+      body+='<p class="why">'+how(cl.id,tgt)+'</p>';
+    }
+    S.log.push({q:q,ok:ok,kind:res.kind,clef:cl.id,userTxt:nm(sel,q.acc)});
+  }
+  if(ok) S.score++;
+  fb.className='feedback '+(ok?'ok':'bad'); fb.innerHTML='<div class="t">'+title+'</div>'+body; fb.hidden=false;
+  var main=$('#btn-main'); main.disabled=false;
+  main.textContent=(S.i===S.qs.length-1)?'Se resultat':'Neste →';
+  main.focus({preventScroll:true});
+  fb.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function next(){
+  if(S.i>=S.qs.length-1){ showResult(); return; }
+  S.i++; renderQuestion();
+  window.scrollTo(0,0);
+}
+
+/* ================= Resultat ================= */
+function showResult(){
+  var n=S.qs.length, sc=S.score, el=$('#result-main');
+  var cnt={oct:0,near:0,letter:0,acc:0,other:0};
+  var byClef={};
+  S.log.forEach(function(r){
+    var b=byClef[r.clef]||(byClef[r.clef]={ok:0,n:0}); b.n++; if(r.ok) b.ok++;
+    if(r.ok) return;
+    if(r.kind==='oct') cnt.oct++; else if(r.kind==='near') cnt.near++; else if(r.kind==='letter') cnt.letter++; else if(r.kind==='acc') cnt.acc++; else cnt.other++;
+  });
+  var msg=sc===n?'Perfekt! Alt riktig.':sc>=n*0.8?'Veldig bra!':sc>=n*0.6?'Bra jobbet – litt mer øving gir sikkerhet.':'Fortsett å øve – det sitter snart.';
+  var h='<span class="lbl">Resultat</span><div class="score">'+sc+' <span style="font-size:1.4rem;color:var(--muted)">av '+n+'</span></div><p class="muted" style="margin-top:6px">'+msg+'</p>';
+  var stats='';
+  var line=function(t,v,hot){ return v>0?'<div class="stat'+(hot?' hot':'')+'"><span>'+t+'</span><b>'+v+'</b></div>':''; };
+  stats+=line('Riktig tonenavn, men feil oktav',cnt.oct,true);
+  stats+=line('Ett trinn ved siden av',cnt.near,false);
+  stats+=line('Feil tonenavn',cnt.letter+cnt.other,false);
+  stats+=line('Feil fortegn',cnt.acc,false);
+  if(stats) h+='<h3 style="margin-top:18px">Hva gikk galt?</h3><div class="stats">'+stats+'</div>';
+  if(cnt.oct>0) h+='<p class="note-small" style="margin:0 0 8px">Tips mot oktavfeil: oktaven skifter mellom '+(ST.sys==='no'?'H':'B')+' og C. Finn nærmeste C, og tell derfra.</p>';
+  var bars='';
+  CLEF_ORDER.forEach(function(id){
+    var b=byClef[id]; if(!b) return;
+    bars+='<div class="bar-row"><span>'+CLEFS[id].label+'</span><div class="tr"><i style="width:'+Math.round(b.ok/b.n*100)+'%"></i></div><b>'+b.ok+'/'+b.n+'</b></div>';
+  });
+  if(bars) h+='<h3 style="margin-top:14px">Per nøkkel</h3><div class="bars">'+bars+'</div>';
+
+  var misses=S.log.filter(function(r){return !r.ok;});
+  if(misses.length){
+    h+='<h3 style="margin-top:20px">Disse bør du ta en gang til</h3><div class="misses">';
+    misses.slice(0,8).forEach(function(r){
+      var q=r.q, svg, txt;
+      if(q.type==='octave'){
+        svg=staffSVG(q.clef,[{p:q.p,acc:q.acc,x:6.5,cls:'n-given'},{p:q.target,acc:q.acc,x:13,cls:'n-ok'}],{tight:true});
+        txt='<b>Oktavhopp:</b> '+nm(q.p,q.acc)+' → '+nm(q.target,q.acc)+'. Du svarte '+r.userTxt+'.';
+      } else if(q.type==='transfer'){
+        svg=staffSVG(q.to,[{p:q.p,acc:q.acc,x:XN,cls:'n-ok'}],{tight:true});
+        txt='<b>'+CLEFS[q.from].label+' → '+CLEFS[q.to].label+':</b> '+nm(q.p,q.acc)+'. Du svarte '+r.userTxt+'.';
+      } else {
+        svg=staffSVG(q.clef,[{p:q.p,acc:q.acc,x:XN,cls:'n-ok'}],{tight:true});
+        txt='<b>'+(q.type==='name'?'Navn tonen':'Plasser tonen')+' · '+CLEFS[q.clef].label+':</b> riktig er '+nm(q.p,q.acc)+'. Du svarte '+r.userTxt+'.';
+      }
+      h+='<div class="miss-item">'+svg+'<p>'+txt+'</p></div>';
+    });
+    if(misses.length>8) h+='<p class="note-small">…og '+(misses.length-8)+' til.</p>';
+    h+='</div>';
+  }
+  h+='<div class="actions" style="margin-top:20px">';
+  if(misses.length) h+='<button class="btn" id="btn-retry" type="button">Øv på feilene</button>';
+  h+='<button class="btn'+(misses.length?' ghost':'')+'" id="btn-again" type="button">Ny runde</button>'+
+     '<button class="btn ghost" id="btn-settings" type="button">Endre innstillinger</button></div>';
+  el.innerHTML=h;
+  show('v-result');
+  var r=$('#btn-retry'); if(r) r.addEventListener('click',function(){ startRound(shuffle(misses.map(function(m){return m.q;}))); });
+  $('#btn-again').addEventListener('click',function(){ startRound(buildQuestions(ST.n)); });
+  $('#btn-settings').addEventListener('click',function(){ show('v-start'); });
+}
+
+/* ================= Oppstart ================= */
+function init(){
+  loadST(); applySTtoUI(); fillRefs();
+  $('#set-clefs').addEventListener('change',syncTransfer);
+  $$('#set-sys input').forEach(function(i){ i.addEventListener('change',function(){ readSTfromUI(); fillRefs(); }); });
+  $('#btn-start').addEventListener('click',function(){
+    readSTfromUI();
+    var msg=$('#start-msg');
+    var types=ST.types.filter(function(t){return t!=='transfer'||ST.clefs.length>1;});
+    if(!ST.clefs.length){ msg.textContent='Velg minst én nøkkel.'; msg.hidden=false; return; }
+    if(!types.length){ msg.textContent='Velg minst én oppgavetype.'; msg.hidden=false; return; }
+    msg.hidden=true; saveST(); fillRefs();
+    startRound(buildQuestions(ST.n));
+  });
+  $('#btn-main').addEventListener('click',function(){ if(S.checked) next(); else check(); });
+  $('#btn-quit').addEventListener('click',function(){ show('v-start'); });
+
+  document.addEventListener('keydown',function(ev){
+    if($('#v-quiz').hidden || !S) return;
+    if(ev.metaKey||ev.ctrlKey||ev.altKey) return;
+    var k=ev.key, t=ev.target;
+    if(k==='Enter'){
+      if(t && t.tagName==='BUTTON' && !t.classList.contains('key')) return;
+      var b=$('#btn-main'); if(!b.disabled){ ev.preventDefault(); b.click(); }
+      return;
+    }
+    var q=S.qs[S.i];
+    if(!q||S.checked||q.type!=='name') return;
+    var no=ST.sys==='no', kk=k.toLowerCase(), btn=null;
+    if(/^[cdefga]$/.test(kk)) btn=$('#answer .key[data-l="'+'cdefga'.indexOf(kk)+'"]');
+    else if(kk==='h' && no) btn=$('#answer .key[data-l="6"]:not([data-b])');
+    else if(kk==='b'){ btn = no ? $('#answer .key[data-b]') : $('#answer .key[data-l="6"]'); }
+    else if(k==='+'||k==='#') btn=$('#answer .key[data-a="1"]');
+    else if(k==='-') btn=$('#answer .key[data-a="-1"]');
+    else if(k==='0') btn=$('#answer .key[data-a="0"]');
+    else if(/^[1-6]$/.test(k)){ var o=no?(+k+1):+k; btn=$('#answer .key[data-o="'+o+'"]'); }
+    if(btn){ ev.preventDefault(); onKey(btn); }
+  });
+}
+init();
+})();
+</script>
+</body>
+</html>
